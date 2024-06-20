@@ -23,12 +23,6 @@ namespace SharpFossilBenchmarks
         
         public static void Main(string[] args)
         {
-#if DEBUG
-            var a = new RoundtripOldVsNew() { Bytes = 1024*64 };
-            a.Setup();
-            a.Old();
-            a.New();
-#endif
 
             BenchmarkRunner.Run(typeof(RoundtripFormats));
 

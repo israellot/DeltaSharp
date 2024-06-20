@@ -42,14 +42,28 @@ public class DeltaBinary : IDelta
     }
 }
 
+public class DeltaASCII : IDelta
+{
+    public IDeltaApply Apply { get; }
+    public IDeltaCreate Create { get; }
+
+    public DeltaASCII()
+    {
+        Apply = new DeltaApply<ASCIIDeltaReader, DeltaChecksum>();
+        Create = new DeltaCreate<ASCIIDeltaWriter, DeltaChecksum>();
+    }
+}
+
 public static class DeltaSharp
 {
     public static IDelta Binary { get; }
     public static IDelta Fossil { get; }
+    public static IDelta ASCII { get; }
 
     static DeltaSharp()
     {
         Binary = new DeltaBinary();
         Fossil = new DeltaFossil();
+        ASCII = new DeltaASCII();
     }
 }

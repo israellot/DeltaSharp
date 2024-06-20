@@ -16,12 +16,8 @@
     <RepositoryUrl>https://github.com/israellot/DeltaSharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>1.0.1</Version>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Hashtable.cs.bak" />
-    <None Remove="Hashtable.cs.bak2" />
-  </ItemGroup>
 
 
   <ItemGroup>
