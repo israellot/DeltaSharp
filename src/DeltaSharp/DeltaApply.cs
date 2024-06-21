@@ -13,9 +13,9 @@ public interface IDeltaApply
     ulong GetOutputLength(ReadOnlySpan<byte> delta);
 }
 
-public class DeltaApply<TReader,TChecksum> : IDeltaApply
+public class DeltaApply<TReader, TChecksum> : IDeltaApply
     where TReader : IDeltaReader, new()
-    where TChecksum : IDeltaChecksum,new()
+    where TChecksum : IDeltaChecksum, new()
 {
     TReader _reader;
     TChecksum _checksum;
@@ -58,7 +58,7 @@ public class DeltaApply<TReader,TChecksum> : IDeltaApply
         return new DeltaResult()
         {
             Crc32 = checksum,
-            Data = output.Slice(applyResult.Length)
+            Data = output.Slice(0,applyResult.Length)
         };
     }
 
@@ -66,12 +66,12 @@ public class DeltaApply<TReader,TChecksum> : IDeltaApply
     {
         var outputLength = GetOutputLength(delta);
 
-        if(outputLength>int.MaxValue)
+        if (outputLength > int.MaxValue)
             throw new DeltaApplyException(DeltaApplyExceptionError.InvalidOutputLength);
 
         var buffer = new byte[(int)outputLength];
 
-        var output= Apply(source, delta, buffer,out var checksum);
+        var output = Apply(source, delta, buffer, out var checksum);
 
         return new DeltaResult()
         {
@@ -80,17 +80,17 @@ public class DeltaApply<TReader,TChecksum> : IDeltaApply
         };
     }
 
-    private Span<byte> Apply(ReadOnlySpan<byte> source, ReadOnlySpan<byte> delta, Span<byte> outputBuffer,out uint checksum)
-    {        
-        var writeSpan = outputBuffer;
-        var outputSpan = writeSpan;
+    private Span<byte> Apply(ReadOnlySpan<byte> source, ReadOnlySpan<byte> delta, Span<byte> outputBuffer, out uint checksum)
+    {
+        var outputSpan = outputBuffer;
+        var writeSpan = outputSpan;
 
-        while (_reader.TryRead(delta,out var cmd,out var consumed))
+        while (_reader.TryRead(delta, out var cmd, out var consumed))
         {
             switch (cmd.Command)
             {
                 case DeltaCommandEnum.Length:
-                    {                        
+                    {
                         if (outputBuffer.Length < (int)cmd.Length)
                             throw new DeltaApplyException(DeltaApplyExceptionError.OutputMemorySizeLessThanRequired);
 
@@ -108,7 +108,7 @@ public class DeltaApply<TReader,TChecksum> : IDeltaApply
 
                         delta = delta.Slice((int)consumed);
 
-                        var insertSlice = delta.Slice(0,(int)cmd.Length);
+                        var insertSlice = delta.Slice(0, (int)cmd.Length);
 
                         insertSlice.CopyTo(writeSpan);
 
@@ -157,7 +157,7 @@ public class DeltaApply<TReader,TChecksum> : IDeltaApply
         throw new DeltaApplyException(DeltaApplyExceptionError.IncompleteDelta);
     }
 
-    
+
 }
 
 public class DeltaApplyException : Exception
@@ -166,7 +166,7 @@ public class DeltaApplyException : Exception
 
     public DeltaApplyException(DeltaApplyExceptionError error)
     {
-         
+
     }
 
     public enum DeltaApplyExceptionError
