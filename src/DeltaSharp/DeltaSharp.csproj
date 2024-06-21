@@ -9,14 +9,14 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>A binary patch library</Title>
     <Authors>Israel Lot</Authors>
-    <Description> A binary patch library with additional format compatible with Fossil</Description>
+    <Description>A binary patch library with additional format compatible with Fossil</Description>
     <Copyright>Copyright © Israel Lot 2024</Copyright>
     <PackageProjectUrl>https://github.com/israellot/DeltaSharp</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/israellot/DeltaSharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.0.1</Version>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
 

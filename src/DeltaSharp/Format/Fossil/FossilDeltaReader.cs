@@ -24,7 +24,7 @@ public class FossilDeltaReader : IDeltaReader
 
     }
 
-    private unsafe (uint value,uint consumed) ReadInt(ReadOnlySpan<byte> input)
+    private unsafe (uint value, uint consumed) ReadInt(ReadOnlySpan<byte> input)
     {
         uint consumed = 0;
         fixed (int* zValue = _zValue)
@@ -36,7 +36,7 @@ public class FossilDeltaReader : IDeltaReader
                 v = (uint)((((Int32)v) << 6) + c);
                 consumed++;
                 input = input.Slice(1);
-            }            
+            }
             return (v, consumed);
         }
 
@@ -75,6 +75,7 @@ public class FossilDeltaReader : IDeltaReader
             if (input.IsEmpty || input[0] != ',')
                 throw new DeltaReaderException("copy command not terminated by ','");
 
+            input = input.Slice(1);
             consumed++;//account for ','
 
             if (cnt == 0)
@@ -104,6 +105,6 @@ public class FossilDeltaReader : IDeltaReader
         return false;
     }
 
-   
+
 }
 
