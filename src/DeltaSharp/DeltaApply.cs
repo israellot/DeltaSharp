@@ -69,7 +69,7 @@ public class DeltaApply<TReader, TChecksum> : IDeltaApply
         if (outputLength > int.MaxValue)
             throw new DeltaApplyException(DeltaApplyExceptionError.InvalidOutputLength);
 
-        var buffer = new byte[(int)outputLength];
+        var buffer = GC.AllocateUninitializedArray<byte>((int)outputLength);
 
         var output = Apply(source, delta, buffer, out var checksum);
 
