@@ -13,7 +13,7 @@ The main advantage of delta encoding is its ability to work efficiently with lar
 
 ## Motivation
 
-This library draws inspiration from the popular Fossil Delta algorigthm, utilized in Fossil, a SCM developed by SQLite team.
+This library draws inspiration from the popular Fossil Delta algorigthm, utilized in Fossil, a SCM used by SQLite team.
 (https://sqlite.org/src/file/ext/misc/fossildelta.c)
 
 By leveraging vector processing, modern hashing and specialized hashtable implementations, it achieves outstanding performance with a balanced memory footprint, making this library suitable for high performance demand scenarios. Some known use cases: 
