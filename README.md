@@ -117,6 +117,37 @@ Console.WriteLine($"Processed {(float)source.Length / ((1024 * 1024) * sw.Elapse
 Storing both editions now costs us only 45kB more instead of 1.22MB. 
 Context dependent, but it is important to remember further compression can be achieved by compressing the delta itself using zlib or another compression library. 
 
+## Performance
+
+In general, delta encoding performance is very dependent on inputs and much common data they actually share. It is important to benchmark your specific scenario.
+Best results are achieved when small edits are done to source data. Worst case is when inputs share no common subsequence at all. 
+Bellow are the results for the roundtrip benchmark included in the repository, it gives a general idea of expected performance for various input sizes.
+
+```
+BenchmarkDotNet v0.14.0, Windows 11 (10.0.22631.4249/23H2/2023Update/SunValley3)
+Intel Core i7-10875H CPU 2.30GHz, 1 CPU, 16 logical and 8 physical cores
+.NET SDK 9.0.100-rc.1.24452.12
+  [Host]     : .NET 8.0.8 (8.0.824.36612), X64 RyuJIT AVX2
+  DefaultJob : .NET 8.0.8 (8.0.824.36612), X64 RyuJIT AVX2
+
+
+| Method | Bytes   | Mean       | Error     | StdDev    | StdErr    | Op/s      | Ratio | RatioSD | Gen0     | Code Size | Gen1     | Gen2     | Allocated  | Alloc Ratio |
+|------- |-------- |-----------:|----------:|----------:|----------:|----------:|------:|--------:|---------:|----------:|---------:|---------:|-----------:|------------:|
+| Fossil | 1024    |   1.201 us | 0.0220 us | 0.0195 us | 0.0052 us | 832,420.7 |  1.00 |    0.02 |   0.3166 |     759 B |   0.0019 |        - |    2.59 KB |        1.00 |
+| Binary | 1024    |   1.111 us | 0.0114 us | 0.0095 us | 0.0026 us | 899,922.4 |  0.93 |    0.02 |   0.3147 |     759 B |        - |        - |    2.59 KB |        1.00 |
+|        |         |            |           |           |           |           |       |         |          |           |          |          |            |             |
+| Fossil | 8192    |   4.857 us | 0.0944 us | 0.1927 us | 0.0270 us | 205,902.4 |  1.00 |    0.05 |   2.0294 |     784 B |   0.0610 |        - |   16.59 KB |        1.00 |
+| Binary | 8192    |   4.764 us | 0.0766 us | 0.0679 us | 0.0182 us | 209,908.9 |  0.98 |    0.04 |   2.0294 |     784 B |   0.0534 |        - |   16.59 KB |        1.00 |
+|        |         |            |           |           |           |           |       |         |          |           |          |          |            |             |
+| Fossil | 32768   |  16.785 us | 0.2164 us | 0.1918 us | 0.0513 us |  59,577.9 |  1.00 |    0.02 |   7.9041 |     784 B |   1.0986 |        - |    64.6 KB |        1.00 |
+| Binary | 32768   |  16.872 us | 0.3259 us | 0.2889 us | 0.0772 us |  59,269.2 |  1.01 |    0.02 |   7.9041 |     784 B |   1.0986 |        - |   64.59 KB |        1.00 |
+|        |         |            |           |           |           |           |       |         |          |           |          |          |            |             |
+| Fossil | 131072  | 107.346 us | 1.4605 us | 1.2947 us | 0.3460 us |   9,315.7 |  1.00 |    0.02 |  41.6260 |     784 B |  41.6260 |  41.6260 |  192.66 KB |        1.00 |
+| Binary | 131072  | 106.508 us | 1.5649 us | 1.4638 us | 0.3780 us |   9,389.0 |  0.99 |    0.02 |  41.6260 |     784 B |  41.6260 |  41.6260 |  192.65 KB |        1.00 |
+|        |         |            |           |           |           |           |       |         |          |           |          |          |            |             |
+| Fossil | 1048576 | 752.158 us | 7.3950 us | 6.5555 us | 1.7520 us |   1,329.5 |  1.00 |    0.01 | 332.0313 |     784 B | 332.0313 | 332.0313 | 1537.01 KB |        1.00 |
+| Binary | 1048576 | 756.173 us | 9.7535 us | 8.6463 us | 2.3108 us |   1,322.4 |  1.01 |    0.01 | 332.0313 |     784 B | 332.0313 | 332.0313 |    1537 KB |        1.00 |
+```
 
 ## Limitations
 
