@@ -1,5 +1,6 @@
 using DeltaSharp;
 using DeltaSharp.Format;
+using DeltaSharp.Util;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;
@@ -101,7 +102,7 @@ public class DeltaCreateTests
             i {insert.Length} {insert}
             c 512 512
             v {checksum}
-            """";
+            """".Replace("\r\n", "\n");
 
         Assert.Equal(shouldEqual,deltaString);
 

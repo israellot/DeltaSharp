@@ -1,18 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Columns;
-using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
-using BenchmarkDotNet.Engines;
-using BenchmarkDotNet.Exporters;
-using BenchmarkDotNet.Jobs;
-using BenchmarkDotNet.Reports;
-using BenchmarkDotNet.Running;
-using DeltaSharp;
+using DeltaSharp.Util.Hashtable;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SharpFossilBenchmarks.Benchmarks;
 
@@ -51,7 +40,7 @@ public class HashtableConstructionAddressSize
     [Benchmark]
     public int Hashtable8()
     {
-        var hashtable = new DeltaSharp.Hashtable64_8(_2k.Span);
+        var hashtable = new Hashtable64_8(_2k.Span);
 
         return hashtable.Match(_2k.Span);
     }
@@ -59,7 +48,7 @@ public class HashtableConstructionAddressSize
     [Benchmark]
     public int Hashtable16()
     {
-        var hashtable = new DeltaSharp.Hashtable64_16(_2k.Span);
+        var hashtable = new Hashtable64_16(_2k.Span);
 
         return hashtable.Match(_2k.Span);
     }
@@ -68,7 +57,7 @@ public class HashtableConstructionAddressSize
     [Benchmark]
     public int Hashtable24()
     {
-        var hashtable = new DeltaSharp.Hashtable64_24(_2k.Span);
+        var hashtable = new Hashtable64_24(_2k.Span);
 
         return hashtable.Match(_2k.Span);
     }
@@ -76,7 +65,7 @@ public class HashtableConstructionAddressSize
     [Benchmark]
     public int Hashtable32()
     {
-        var hashtable = new DeltaSharp.Hashtable64_32(_2k.Span);
+        var hashtable = new Hashtable64_32(_2k.Span);
 
         return hashtable.Match(_2k.Span);
     }
@@ -85,13 +74,13 @@ public class HashtableConstructionAddressSize
 
 
 
-[MemoryDiagnoser(false)]
+[MemoryDiagnoser(true)]
 [AllStatisticsColumn]
 [HideColumns("Median", "StdError", "Q1", "Q3", "Max", "Min")]
 public class HashtableConstructionThroughtput
 {
 
-    public ReadOnlyMemory<byte> _1Mb { get; set; }
+    public ReadOnlyMemory<byte> _10Mb { get; set; }
 
     public HashtableConstructionThroughtput()
     {
@@ -101,27 +90,27 @@ public class HashtableConstructionThroughtput
     [GlobalSetup]
     public void Setup()
     {
-        var data = new byte[1024 * 1024];
+        var data = new byte[1024 * 1024*10];
         var random = new Random(11);
         random.NextBytes(data);
 
-        _1Mb = data;
+        _10Mb = data;
     }
 
     [Benchmark]
     public int Hashtable32()
     {
-        var hashtable = new DeltaSharp.Hashtable64_32(_1Mb.Span);
+        var hashtable = new Hashtable64_32(_10Mb.Span);
 
-        return hashtable.Match(_1Mb.Span);
+        return hashtable.Match(_10Mb.Span);
     }
 
     [Benchmark]
     public int Hashtable24()
     {
-        var hashtable = new DeltaSharp.Hashtable64_24(_1Mb.Span);
+        var hashtable = new Hashtable64_24(_10Mb.Span);
 
-        return hashtable.Match(_1Mb.Span);
+        return hashtable.Match(_10Mb.Span);
     }
 
 }

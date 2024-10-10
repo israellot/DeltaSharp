@@ -1,37 +1,25 @@
-﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Columns;
-using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Jobs;
-using BenchmarkDotNet.Parameters;
-using BenchmarkDotNet.Reports;
-using BenchmarkDotNet.Running;
-using Microsoft.Diagnostics.Runtime.Utilities;
+﻿using BenchmarkDotNet.Running;
+using DeltaSharp;
 using SharpFossilBenchmarks.Benchmarks;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Numerics;
-using System.Security.Cryptography;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace SharpFossilBenchmarks
+namespace SharpFossilBenchmarks;
+
+class Program
 {
-
-    class Program
+    
+    public static async Task Main(string[] args)
     {
-        
-        public static void Main(string[] args)
-        {
+                
+        BenchmarkRunner.Run(typeof(RoundtripFormats));
 
-            BenchmarkRunner.Run(typeof(RoundtripFormats));
-
-            Console.ReadKey();
-        }
-
-    }
-
-   
-
+        var k = Console.ReadKey();
+           
+    }      
 
 }

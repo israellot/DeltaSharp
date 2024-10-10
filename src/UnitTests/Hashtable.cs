@@ -1,5 +1,6 @@
 using DeltaSharp;
 using DeltaSharp.Format;
+using DeltaSharp.Util.Hashtable;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;

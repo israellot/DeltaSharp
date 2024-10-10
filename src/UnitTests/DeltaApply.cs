@@ -35,7 +35,7 @@ public class DeltaApplyTests
 
         var result = deltaApply.Apply(source, delta);
 
-        Assert.True(result.Span.SequenceEqual(target));
+        Assert.True(result.Data.Span.SequenceEqual(target));
 
     }
 

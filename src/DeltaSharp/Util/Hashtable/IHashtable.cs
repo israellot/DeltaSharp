@@ -1,4 +1,4 @@
-﻿namespace DeltaSharp;
+﻿namespace DeltaSharp.Util.Hashtable;
 
 interface IHashtable
 {

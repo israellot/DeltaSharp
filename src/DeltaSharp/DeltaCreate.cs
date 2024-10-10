@@ -1,4 +1,13 @@
 ﻿using DeltaSharp.Format;
+using DeltaSharp.Util;
+using DeltaSharp.Util.Hashtable;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 
 namespace DeltaSharp;
 
@@ -28,8 +37,6 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
 
     public DeltaResult Create(ReadOnlySpan<byte> origin, ReadOnlySpan<byte> target)
     {
-        //using var writer = new TWriter();
-
         using var writer = (TWriter)(Activator.CreateInstance(typeof(TWriter), origin.Length / 2) ?? new TWriter());
 
         writer.WriteLength((ulong)target.Length);
@@ -54,13 +61,12 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
 
         // Compute the hash table used to locate matching sections in the source.
         using var hashtable = new Hashtable64(origin);
-        var blockSize = hashtable.BlockSize();
+        var blockSize = hashtable.BlockSize;
 
         var written = ReadOnlySpan<byte>.Empty;
         var unmatched = ReadOnlySpan<byte>.Empty;
         var unwritten = target;
         var next = target;
-
 
         while (!next.IsEmpty)
         {
@@ -74,19 +80,24 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
             var p = hashtable.Match(next);
             while (p >= 0)
             {
-                var matchedForward = MatchForward(next, origin.Slice(p));
+                //target matched at landmark on origin
+
+                //actually match forward as long as possible
+                var matchedForward = SpanHelper.MatchForward(next, origin.Slice(p));
                 if (matchedForward > 0)
                 {
-                    var matchedBackwards = MatchBackwards(unmatched, origin.Slice(0, p));
+                    //check if we can match backwards too
+                    var matchedBackwards = unmatched.Length > 0 ? SpanHelper.MatchBackward(unmatched, origin.Slice(0, p)) : 0;
                     var matchedTotal = matchedForward + matchedBackwards;
                     if (matchedTotal > bestMatchLength)
                     {
+                        //this match is the new best so far
                         bestMatchLength = matchedTotal;
                         bestMatchStart = p - matchedBackwards;
                         bestMatchedBackwards = matchedBackwards;
 
                         if (matchedTotal == unwritten.Length)
-                            break; //no need to continue search
+                            break; //no need to continue search, we matched the whole target
                     }
                 }
                 
@@ -96,6 +107,9 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
 
             if (bestMatchLength > 8)
             {
+                //a sensible limit for a copy command
+                //short matches may end up being longer than insert commands when encoding
+
                 var insertLength = unmatched.Length - bestMatchedBackwards;
                 if (insertLength>0)
                 {
@@ -130,34 +144,6 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
             Data = writer.GetOutput(),
             Crc32 = checksum
         };
-    }
-
-    public int MatchForward(ReadOnlySpan<byte> x,ReadOnlySpan<byte> y)
-    {
-        var count = 0;
-        while(count<x.Length && count<y.Length)
-        {
-            if (x[count] != y[count])
-                break;
-
-            count++;
-        }
-
-        return count;
-    }
-
-    public int MatchBackwards(ReadOnlySpan<byte> x, ReadOnlySpan<byte> y)
-    {
-        var i = 1;
-        while (i <= x.Length && i <= y.Length)
-        {
-            if (x[x.Length-i] != y[y.Length-i])
-                break;
-
-            i++;
-        }
-
-        return i - 1;
     }
 
 }
