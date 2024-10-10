@@ -1,5 +1,6 @@
 # DeltaSharp
-C# binary Delta Encode library
+C# Binary Delta Encode library
+
 Optional compatibility with Fossil delta format
 
 ## Delta Encoding
