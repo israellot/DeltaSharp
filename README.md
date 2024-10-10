@@ -82,7 +82,42 @@ Console.Write(Encoding.UTF8.GetString(target.Data.Span));
 
 //The lazy brown fox jumps over the quick dog
 ```
+### Practical example
+
+Let's say you have a version of the famous book Moby Dick, and there's a new revised edition out there.
+Instead of storing both, you can keep the first one and store a delta that you can apply to get the newer edition.
+
+```csharp
+var httpClient = new HttpClient();
+
+//moby dick older edition
+var source = await httpClient.GetByteArrayAsync("https://www.gutenberg.org/cache/epub/15/pg15.txt");
+
+//moby dick newer edition
+var target = await httpClient.GetByteArrayAsync("https://www.gutenberg.org/cache/epub/2701/pg2701.txt");
+
+Console.WriteLine($"Source {(float)source.Length/(1024*1024):f2}MB");
+Console.WriteLine($"Target {(float)target.Length/ (1024 * 1024):f2}MB");
+
+var sw = Stopwatch.StartNew();
+var delta = DeltaSharp.DeltaSharp.CreateBinary(source, target);
+sw.Stop();
+
+Console.WriteLine($"Delta {(float)delta.Data.Length/1024:f2}kb");
+Console.WriteLine($"Processed {(float)source.Length / ((1024 * 1024) * sw.Elapsed.TotalSeconds):f2}MB/s");
+
+//------------------------------------------------------------------------------
+// Source 1,22 MB
+// Target 1,22 MB
+// Delta 45,82 kB
+// Processed 473,87 MB/s
+
+```
+
+Storing both editions now costs us only 45kB more instead of 1.22MB. 
+Context dependent, but it is important to remember further compression can be achieved by compressing the delta itself using zlib or another compression library. 
+
 
 ## Limitations
 
-The current implementation is a memory-only one. This means the max input it can process in a single shot is limited by the CLR 2GB object size.
+The current implementation is a memory-only one. This means the max input it can process in a single shot is restricted by the CLR 2GB object size limit.
