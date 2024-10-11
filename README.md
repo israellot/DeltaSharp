@@ -98,14 +98,14 @@ var source = await httpClient.GetByteArrayAsync("https://www.gutenberg.org/cache
 var target = await httpClient.GetByteArrayAsync("https://www.gutenberg.org/cache/epub/2701/pg2701.txt");
 
 Console.WriteLine($"Source {(float)source.Length/(1024*1024):f2}MB");
-Console.WriteLine($"Target {(float)target.Length/ (1024 * 1024):f2}MB");
+Console.WriteLine($"Target {(float)target.Length/(1024*1024):f2}MB");
 
 var sw = Stopwatch.StartNew();
 var delta = DeltaSharp.DeltaSharp.CreateBinary(source, target);
 sw.Stop();
 
 Console.WriteLine($"Delta {(float)delta.Data.Length/1024:f2}kb");
-Console.WriteLine($"Processed {(float)source.Length / ((1024 * 1024) * sw.Elapsed.TotalSeconds):f2}MB/s");
+Console.WriteLine($"Processed {(float)source.Length /((1024*1024)*sw.Elapsed.TotalSeconds):f2}MB/s");
 
 //------------------------------------------------------------------------------
 // Source 1,22 MB
