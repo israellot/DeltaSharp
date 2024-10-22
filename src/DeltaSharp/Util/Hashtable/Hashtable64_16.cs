@@ -15,15 +15,12 @@ namespace DeltaSharp.Util.Hashtable;
 /// Specialized hashtable to handle data of 524,280 bytes or less in size
 /// The trick here is avoiding heap allocations and using a stack allocated fixed size buffer
 /// </summary>
-internal unsafe readonly ref struct Hashtable64_16
+internal readonly ref struct Hashtable64_16
 {
 
     private readonly ReadOnlySpan<ushort> _collide;
 
     private readonly ReadOnlySpan<ushort> _landmark;
-
-    private readonly ushort* _collideP;
-    private readonly ushort* _landmarkP;
 
     private readonly ulong _nHashBitMask;
 
@@ -46,7 +43,7 @@ internal unsafe readonly ref struct Hashtable64_16
         if (nHash > 10_000) //avoid LOH
         {
             _buffer = ArrayPool<ushort>.Shared.Rent(nHash * 2);
-            _buffer.AsSpan().Slice(0, nHash * 2).Fill(0);
+            _buffer.AsSpan().Slice(0, nHash * 2).Clear();
             buffer = _buffer;
         }
         else
@@ -57,8 +54,12 @@ internal unsafe readonly ref struct Hashtable64_16
         Span<ushort> collide = buffer.AsSpan().Slice(0, nHash);
         Span<ushort> landmark = buffer.AsSpan().Slice(nHash, nHash);
 
-        _landmarkP = (ushort*)Unsafe.AsPointer(ref MemoryMarshal.GetReference(landmark));
-        _collideP = (ushort*)Unsafe.AsPointer(ref MemoryMarshal.GetReference(collide));
+        //Span<ushort> collide = _memoryOwner.Memory.Span.Slice(0, nHash);
+        //Span<ushort> landmark = _memoryOwner.Memory.Span.Slice(nHash, nHash);
+
+        //Span<ushort> collide = new ushort[nHash * 2];
+        //Span<ushort> landmark = collide.Slice(nHash);
+        //collide = collide.Slice(0, nHash);
 
         ReadOnlySpan<ulong> ulongData = MemoryMarshal.Cast<byte, ulong>(data).Slice(0, nLong);
 
@@ -68,9 +69,9 @@ internal unsafe readonly ref struct Hashtable64_16
 
             var hv = Bucket(d);
 
-            _collideP[i] = _landmarkP[hv];
+            collide[i] = landmark[hv];
 
-            _landmarkP[hv] = (ushort)(i + 1);
+            landmark[hv] = (ushort)(i + 1);
         }
 
         _collide = collide;
@@ -80,25 +81,31 @@ internal unsafe readonly ref struct Hashtable64_16
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int Match(ReadOnlySpan<byte> data)
+    public unsafe int Match(ReadOnlySpan<byte> data)
     {
         //we assume data is at least 8 bytes long to do a branchless read
         var ulongData = Unsafe.ReadUnaligned<ulong>(ref MemoryMarshal.GetReference(data));
 
         var bucket = Bucket(ulongData);
 
-        var pos = *(_landmarkP + (uint)bucket);
+        fixed (ushort* p = _landmark)
+        {
+            var pos = *(p + (uint)bucket);
 
-        return (pos - 1) * 8;
+            return (pos - 1) * 8;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int More(int pos)
+    public unsafe int More(int pos)
     {
-        var index = (uint)pos / 8;
-        var b = *(_collideP + index);
+        fixed (ushort* p = _collide)
+        {
+            var a = (uint)pos / 8;
+            var b = *(p + a);
 
-        return (b - 1) * 8;
+            return (b - 1) * 8;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

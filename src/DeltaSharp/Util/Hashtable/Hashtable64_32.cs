@@ -24,9 +24,6 @@ internal unsafe readonly ref struct Hashtable64_32
 
     private readonly ReadOnlySpan<int> _landmark;
 
-    private readonly int* _landmarkP;
-    private readonly int* _collideP;
-
     private readonly ulong _nHashBitMask;
 
     private readonly int[] _buffer;
@@ -49,20 +46,25 @@ internal unsafe readonly ref struct Hashtable64_32
 
         Span<int> landmark = _buffer.AsSpan().Slice(nHash, nHash);
         Span<int> collide = _buffer.AsSpan().Slice(0, nHash);
-
-        _landmarkP = (int*)Unsafe.AsPointer(ref MemoryMarshal.GetReference(landmark));
-        _collideP = (int*)Unsafe.AsPointer(ref MemoryMarshal.GetReference(collide));
+        
 
         ReadOnlySpan<ulong> ulongData = MemoryMarshal.Cast<byte, ulong>(data).Slice(0, nLong);
 
-        for (var i = nLong - 1; i >= 0; i -= 1)
+        unsafe
         {
-            var d = ulongData[i];
+            fixed (int* collideP = collide)
+            fixed (int* landmarkP = landmark)
+            {
+                for (var i = nLong - 1; i >= 0; i -= 1)
+                {
+                    var d = ulongData[i];
 
-            var hv = Bucket(d);
+                    var hv = Bucket(d);
 
-            *(_collideP + i) = _landmarkP[hv];
-            *(_landmarkP + hv) = i;
+                    *(collideP + i) = landmarkP[hv];
+                    *(landmarkP + hv) = i;
+                }
+            }
         }
 
         _collide = collide;
@@ -81,7 +83,7 @@ internal unsafe readonly ref struct Hashtable64_32
         var bucket = Bucket(ulongData);
 
         //branchless read since bucket will always be within range
-        int pos = _landmarkP[bucket];
+        int pos = _landmark[bucket];
 
         return pos * 8;
     }
@@ -91,7 +93,7 @@ internal unsafe readonly ref struct Hashtable64_32
     {
         //branchless read
         //index is always within range
-        return _collideP[(int)((uint)pos / 8)] * 8;
+        return _collide[(int)((uint)pos / 8)] * 8;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
