@@ -33,7 +33,13 @@ public class FossilDeltaReader : IDeltaReader
             int c;
             while (!input.IsEmpty && (c = zValue[0x7f & input[0]]) >= 0)
             {
-                v = (uint)((((Int32)v) << 6) + c);
+                // Each digit shifts the accumulator left by 6 bits. If the top 6 bits
+                // are already set, another digit would silently overflow the 32-bit
+                // value and corrupt the parsed length/offset. Reject instead.
+                if ((v & 0xFC00_0000u) != 0)
+                    throw new DeltaReaderException("integer too large in delta");
+
+                v = (v << 6) + (uint)c;
                 consumed++;
                 input = input.Slice(1);
             }
@@ -54,6 +60,13 @@ public class FossilDeltaReader : IDeltaReader
         (var cnt, var read) = ReadInt(input);
         consumed += read;
         input = input.Slice((int)read);
+
+        // ReadInt may have consumed every remaining byte (e.g. a delta that is all
+        // base64 digits and carries no command byte). Guard before dereferencing,
+        // otherwise input[0] throws IndexOutOfRangeException instead of cleanly
+        // reporting an invalid/incomplete delta via the TryRead contract.
+        if (input.IsEmpty)
+            return false;
 
         var cmd = input[0];
         consumed++;
