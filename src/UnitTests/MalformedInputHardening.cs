@@ -1,5 +1,6 @@
 using DeltaSharp;
 using DeltaSharp.Format;
+using DeltaSharp.Util;
 using System.Text;
 
 namespace UnitTests;
@@ -103,5 +104,58 @@ public class MalformedInputHardeningTests
         var delta = Encoding.UTF8.GetBytes(deltaString);
 
         Assert.Throws<DeltaApplyException>(() => deltaApply.Apply(source, delta));
+    }
+
+    // --- DeltaApplyException now actually records its Error ---
+
+    [Fact]
+    public void DeltaApplyException_PreservesErrorCode()
+    {
+        var deltaApply = new DeltaApply<ASCIIDeltaReader, DeltaChecksum>();
+
+        var source = "abcdef"u8.ToArray();
+        var deltaString = "l 4\nc 4 4\n".Replace("\r\n", "\n");
+        var delta = Encoding.UTF8.GetBytes(deltaString);
+
+        var ex = Assert.Throws<DeltaApplyException>(() => deltaApply.Apply(source, delta));
+        Assert.Equal(DeltaApplyException.DeltaApplyExceptionError.InvalidCopyLength, ex.Error);
+    }
+
+    // --- VarIntFormatter.DecodeUnsafe: truncated multi-byte input is bounds-safe ---
+
+    [Fact]
+    public void DecodeUnsafe_TruncatedMultiByte_SignalsFailureNotOOB()
+    {
+        // For every multi-byte lead byte, supply the lead byte alone (and any other
+        // truncated prefix). DecodeUnsafe must not read past the buffer; it signals
+        // "could not decode" via consumed == 0 instead.
+        byte[] leads = { 241, 248, 249, 250, 251, 252, 253, 254, 255 };
+        foreach (var lead in leads)
+        {
+            var buffer = new byte[] { lead }; // declares a multi-byte value, supplies 1 byte
+            VarIntFormatter.DecodeUnsafe(buffer, out var consumed);
+            Assert.Equal(0, consumed);
+        }
+    }
+
+    [Fact]
+    public void DecodeUnsafe_CompleteInput_StillDecodes()
+    {
+        // Sanity: a fully-supplied encoding round-trips through DecodeUnsafe.
+        void Check(ulong x)
+        {
+            var encoded = VarIntFormatter.Encode(x);
+            var decoded = VarIntFormatter.DecodeUnsafe(encoded, out var consumed);
+            Assert.True(consumed > 0);
+            Assert.Equal(x, decoded);
+        }
+
+        Check(0);
+        Check(241);
+        Check(2288);
+        Check(67824);
+        Check(16777216);
+        Check(4294967296);
+        Check(ulong.MaxValue);
     }
 }
