@@ -179,7 +179,7 @@ public class DeltaApplyException : Exception
 
     public DeltaApplyException(DeltaApplyExceptionError error)
     {
-
+        Error = error;
     }
 
     public enum DeltaApplyExceptionError
