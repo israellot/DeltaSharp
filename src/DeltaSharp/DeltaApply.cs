@@ -108,6 +108,12 @@ public class DeltaApply<TReader, TChecksum> : IDeltaApply
 
                         delta = delta.Slice((int)consumed);
 
+                        // The declared insert length must not exceed the bytes actually
+                        // present in the (untrusted) delta tail, otherwise the Slice below
+                        // throws ArgumentOutOfRangeException on malformed input.
+                        if (cmd.Length > (ulong)delta.Length)
+                            throw new DeltaApplyException(DeltaApplyExceptionError.InvalidInsertLength);
+
                         var insertSlice = delta.Slice(0, (int)cmd.Length);
 
                         insertSlice.CopyTo(writeSpan);
@@ -124,6 +130,13 @@ public class DeltaApply<TReader, TChecksum> : IDeltaApply
                             throw new DeltaApplyException(DeltaApplyExceptionError.InvalidCopyPosition);
 
                         if (cmd.Length > (ulong)writeSpan.Length)
+                            throw new DeltaApplyException(DeltaApplyExceptionError.InvalidCopyLength);
+
+                        // Position alone being in range is not enough: the copied region
+                        // (Position + Length) must also stay within the source, otherwise
+                        // the Slice below reads past the source end on a crafted delta.
+                        // Compared in ulong space to avoid 32-bit overflow of the sum.
+                        if (cmd.Position + cmd.Length > (ulong)source.Length)
                             throw new DeltaApplyException(DeltaApplyExceptionError.InvalidCopyLength);
 
                         delta = delta.Slice((int)consumed);
@@ -166,7 +179,7 @@ public class DeltaApplyException : Exception
 
     public DeltaApplyException(DeltaApplyExceptionError error)
     {
-
+        Error = error;
     }
 
     public enum DeltaApplyExceptionError
