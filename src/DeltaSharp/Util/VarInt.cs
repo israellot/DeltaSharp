@@ -487,6 +487,11 @@ internal static class VarIntFormatter
         }
     }
 
+    // Fast, non-throwing varint decode. Like EncodeUnsafe, the caller is expected to
+    // supply a buffer large enough for the encoded value; but rather than read past a
+    // short/truncated buffer (silent OOB), every multi-byte case bounds-checks the
+    // length first and signals "could not decode" by returning consumed = 0 — the same
+    // sentinel already used for the empty-buffer case. Callers must check consumed != 0.
     public static ulong DecodeUnsafe(ReadOnlySpan<byte> buffer, out int consumed)
     {
         ulong value = 0;
@@ -508,7 +513,10 @@ internal static class VarIntFormatter
                 }
             case <= 248:
                 {
-                    //If A0 is between 241 and 248 inclusive, then the result is 240 + 256 * (A0 - 241) + A1.                                       
+                    //If A0 is between 241 and 248 inclusive, then the result is 240 + 256 * (A0 - 241) + A1.
+
+                    if (buffer.Length <= 1)
+                        return 0;
 
                     var a1 = buffer[1];
 
@@ -522,6 +530,9 @@ internal static class VarIntFormatter
                 {
                     //If A0 is 249 then the result is 2288 + 256 * A1 + A2.
 
+                    if (buffer.Length <= 2)
+                        return 0;
+
                     var a1 = buffer[1];
                     var a2 = buffer[2];
 
@@ -534,6 +545,9 @@ internal static class VarIntFormatter
             case 250:
                 {
                     //If A0 is 250 then the result is A1..A3 as a 3 - byte big - ending integer.
+
+                    if (buffer.Length <= 3)
+                        return 0;
 
                     Span<byte> temp = stackalloc byte[4];
 
@@ -549,6 +563,9 @@ internal static class VarIntFormatter
                 {
                     //If A0 is 251 then the result is A1..A4 as a 4 - byte big - ending integer.
 
+                    if (buffer.Length <= 4)
+                        return 0;
+
                     Span<byte> temp = stackalloc byte[4];
 
                     buffer.Slice(1, 4).CopyTo(temp);
@@ -562,6 +579,9 @@ internal static class VarIntFormatter
             case 252:
                 {
                     //If A0 is 252 then the result is A1..A5 as a 5 - byte big - ending integer.
+
+                    if (buffer.Length <= 5)
+                        return 0;
 
                     Span<byte> temp = stackalloc byte[8];
 
@@ -577,6 +597,9 @@ internal static class VarIntFormatter
                 {
                     //If A0 is 253 then the result is A1..A6 as a 6 - byte big - ending integer.
 
+                    if (buffer.Length <= 6)
+                        return 0;
+
                     Span<byte> temp = stackalloc byte[8];
 
                     buffer.Slice(1, 6).CopyTo(temp.Slice(2));
@@ -591,6 +614,9 @@ internal static class VarIntFormatter
                 {
                     //If A0 is 254 then the result is A1..A7 as a 7 - byte big - ending integer.
 
+                    if (buffer.Length <= 7)
+                        return 0;
+
                     Span<byte> temp = stackalloc byte[8];
 
                     buffer.Slice(1, 7).CopyTo(temp.Slice(1));
@@ -604,6 +630,9 @@ internal static class VarIntFormatter
             case 255:
                 {
                     //If A0 is 255 then the result is A1..A8 as a 8 - byte big - ending integer.
+
+                    if (buffer.Length <= 8)
+                        return 0;
 
                     Span<byte> temp = stackalloc byte[8];
 
