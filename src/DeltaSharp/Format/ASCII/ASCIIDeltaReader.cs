@@ -16,11 +16,17 @@ public class ASCIIDeltaReader : IDeltaReader
         if (input.IsEmpty)
             return false;
 
-        while((char)input[0]=='\n' || (char)input[0]=='\r')
+        // Skip leading line breaks. The loop must re-check for end-of-input on every
+        // iteration, otherwise input consisting only of '\n'/'\r' slices down to empty
+        // and the dereference below throws IndexOutOfRangeException.
+        while(!input.IsEmpty && ((char)input[0]=='\n' || (char)input[0]=='\r'))
         {
             consumed++;
             input = input.Slice(1);
         }
+
+        if (input.IsEmpty)
+            return false;
 
         var commandChar = (char)input[0];
 
@@ -63,6 +69,12 @@ public class ASCIIDeltaReader : IDeltaReader
 
                     if (!Utf8Parser.TryParse(input, out ulong position, out var positionBytes))
                         throw new DeltaReaderException("Failed to parse number");
+
+                    // There must actually be a whitespace separator between the two
+                    // numbers. Without this check, Slice(positionBytes+1) can run past
+                    // the end of a truncated/malformed copy command (no separator).
+                    if (positionBytes >= input.Length || input[positionBytes] != (byte)' ')
+                        throw new DeltaReaderException("Expected whitespace");
 
                     input = input.Slice(positionBytes+1);//advance position + whitespace
 
