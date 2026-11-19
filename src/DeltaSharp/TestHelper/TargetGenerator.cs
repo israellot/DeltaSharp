@@ -104,7 +104,7 @@ internal class TargetGeneratorOperation
         if (position > source.Count - 1 || position == -1)
             position = source.Count;
 
-        Span<byte> buffer = stackalloc byte[16];
+        var buffer = new byte[16];
 
         var count = 1;
         var data = string.Empty;
@@ -167,7 +167,7 @@ internal class TargetGeneratorOperation
         if(position>source.Count-1)
             throw new InvalidDataException("[ApplySet] invalid position");
 
-        Span<byte> buffer = stackalloc byte[16];
+        var buffer = new byte[16];
 
         int count = 1;
         int step = 1;
@@ -287,11 +287,12 @@ internal class TargetGeneratorOperation
     {
         var sb = new StringBuilder();
 
+        using var md5 = System.Security.Cryptography.MD5.Create();
         var skip = 0;
         while (sb.Length < source.Length)
         {
             var s = source.Substring(skip, 16);
-            var hash = System.Security.Cryptography.MD5.HashData(Encoding.UTF8.GetBytes(s));
+            var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(s));
             var hashString = Convert.ToBase64String(hash).Replace("==", "").Replace("=", "");
             sb.Append(hashString);
 

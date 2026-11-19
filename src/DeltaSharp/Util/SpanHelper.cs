@@ -4,13 +4,34 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if !NETSTANDARD2_0
 using System.Runtime.Intrinsics;
+#endif
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DeltaSharp.Util;
 internal class SpanHelper
 {
+#if NETSTANDARD2_0
+    public static int MatchForward(ReadOnlySpan<byte> x, ReadOnlySpan<byte> y)
+    {
+        int length = Math.Min(x.Length, y.Length);
+        int matched = 0;
+        while (matched < length && x[matched] == y[matched])
+            matched++;
+        return matched;
+    }
+
+    public static int MatchBackward(ReadOnlySpan<byte> x, ReadOnlySpan<byte> y)
+    {
+        int length = Math.Min(x.Length, y.Length);
+        int matched = 0;
+        while (matched < length && x[x.Length - 1 - matched] == y[y.Length - 1 - matched])
+            matched++;
+        return matched;
+    }
+#else
     public static int MatchForward(ReadOnlySpan<byte> x, ReadOnlySpan<byte> y)
     {
         var length = Math.Min(x.Length, y.Length);
@@ -171,5 +192,5 @@ internal class SpanHelper
 
 
     }
-
+#endif
 }

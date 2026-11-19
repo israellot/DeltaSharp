@@ -34,7 +34,7 @@ internal readonly ref struct Hashtable64_16
             throw new ArgumentException($"Max allowed size is {ushort.MaxValue * 8}", nameof(data));
 
         // Compute the hash table used to locate matching sections in the source.        
-        int nHash = (int)BitOperations.RoundUpToPowerOf2((uint)nLong);
+        int nHash = Hash.TableSize(nLong);
 
         _nHashBitMask = (ulong)(nHash - 1);
 

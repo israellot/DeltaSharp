@@ -16,6 +16,10 @@ namespace DeltaSharp.Util.Hashtable;
 /// </summary>
 internal readonly ref struct Hashtable64_8
 {
+#if NETSTANDARD2_0
+    private readonly byte[] _collide = new byte[256];
+    private readonly byte[] _landmark = new byte[256];
+#else
     [InlineArray(256)]
     struct ByteArray256
     {
@@ -24,6 +28,7 @@ internal readonly ref struct Hashtable64_8
 
     private readonly ByteArray256 _collide;
     private readonly ByteArray256 _landmark;
+#endif
 
     private const ulong _nHashBitMask = 255;
         
@@ -34,12 +39,14 @@ internal readonly ref struct Hashtable64_8
         if (nInt > byte.MaxValue)
             throw new ArgumentException($"Max allowed size is {byte.MaxValue * 8}", nameof(data));
 
+#if !NETSTANDARD2_0
         //No need to be smart here, the compiler will vectorize
         for (var i = 0; i < 256; i++)
         {
             _collide[i] = 0;
             _landmark[i] = 0;
         }
+#endif
                
         ReadOnlySpan<ulong> uintData = MemoryMarshal.Cast<byte, ulong>(data).Slice(0, nInt);
 
