@@ -5,6 +5,8 @@ using System.Text;
 
 namespace DeltaSharp.Format;
 
+/// <summary>Reads Fossil delta command headers with unsigned 32-bit base-64 integer operands.</summary>
+/// <remarks>A copy count of zero copies no bytes. Insert payloads are raw bytes.</remarks>
 public class FossilDeltaReader : IDeltaReader
 {
 
@@ -19,6 +21,7 @@ public class FossilDeltaReader : IDeltaReader
             52, 53, 54, 55, 56, 57, 58, 59,   60, 61, 62, -1, -1, -1, 63, -1
         };
 
+    /// <summary>Initializes a Fossil delta reader.</summary>
     public FossilDeltaReader()
     {
 
@@ -31,7 +34,7 @@ public class FossilDeltaReader : IDeltaReader
         {
             uint v = 0;
             int c;
-            while (!input.IsEmpty && (c = zValue[0x7f & input[0]]) >= 0)
+            while (!input.IsEmpty && input[0] < 128 && (c = zValue[input[0]]) >= 0)
             {
                 // Each digit shifts the accumulator left by 6 bits. If the top 6 bits
                 // are already set, another digit would silently overflow the 32-bit
@@ -49,6 +52,7 @@ public class FossilDeltaReader : IDeltaReader
 
     }
 
+    /// <inheritdoc cref="IDeltaReader.TryRead"/>
     public bool TryRead(ReadOnlySpan<byte> input, out DeltaCommand command, out uint consumed)
     {
         command = default;
@@ -91,9 +95,8 @@ public class FossilDeltaReader : IDeltaReader
             input = input.Slice(1);
             consumed++;//account for ','
 
-            if (cnt == 0)
-                throw new DeltaReaderException("invalid zero length copy command");
-
+            // Match Fossil's reference decoder: zero copies no bytes, not the
+            // rest of the source. Apply still validates the offset and output.
             command = new DeltaCommand(DeltaCommandEnum.Copy, offset, cnt);
 
             return true;
@@ -101,9 +104,6 @@ public class FossilDeltaReader : IDeltaReader
         }
         else if (cmd == (byte)':')
         {
-            if (cnt == 0)
-                throw new DeltaReaderException("invalid zero length insert command");
-
             command = new DeltaCommand(DeltaCommandEnum.Insert, 0, cnt);
 
             return true;

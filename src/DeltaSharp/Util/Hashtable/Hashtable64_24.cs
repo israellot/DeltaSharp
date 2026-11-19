@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if DELTASHARP_HASHTABLE24
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,10 @@ using System.Threading.Tasks;
 namespace DeltaSharp.Util.Hashtable;
 
 /// <summary>
-/// Specialized hashtable to handle data of 134,217,720 bytes or less in size
-/// The trick here using what would be a uint24 ( 3 bytes ) to store the address and hash
-/// Such primitive does not exist in C# so we use a uint32 and mask the last byte when writing to the buffer,
-/// effectively creating a uint24 array.
+/// Stores up to 16,777,215 complete 8-byte blocks (source lengths through 134,217,727 bytes)
+/// using packed 24-bit, one-based block indices in a pooled byte array.
+/// Reads mask a 32-bit value to 24 bits; writes use one byte and one 16-bit value
+/// so neighboring entries remain unchanged.
 /// </summary>
 internal unsafe readonly ref struct Hashtable64_24
 {
@@ -149,3 +150,4 @@ internal unsafe readonly ref struct Hashtable64_24
         ArrayPool<byte>.Shared.Return(_buffer);
     }
 }
+#endif

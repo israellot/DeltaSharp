@@ -4,7 +4,7 @@ DeltaSharp is a C# library for binary diff and patch. When two machines already 
 
 ## Install and apply a patch
 
-DeltaSharp 1.0.9 includes assemblies for .NET 8, 9, 10, 11, and .NET Standard 2.0. To try it in a .NET 8 or later console project, install [DeltaSharp from NuGet](https://www.nuget.org/packages/DeltaSharp/):
+DeltaSharp 1.0.10 includes assemblies for .NET 8, 9, 10, 11, and .NET Standard 2.0. To try it in a .NET 8 or later console project, install [DeltaSharp from NuGet](https://www.nuget.org/packages/DeltaSharp/):
 
 ```sh
 dotnet add package DeltaSharp
@@ -35,7 +35,46 @@ Console.WriteLine(restored.Data.Span.SequenceEqual(target)); // True
 
 Apply a patch with the matching format and the original source bytes. Each format describes how to copy byte ranges from the source and insert new bytes. DeltaSharp checks the reconstructed output against the checksum in the patch.
 
+Fossil zero-length COPY commands are accepted as no-ops, matching the reference decoder. They do not copy through the end of the source. Source offsets, total output length, and checksums are still validated.
+
+`DeltaResult.Crc32` is the historical name for the Fossil additive checksum used by all three formats; it is not a CRC-32 or a cryptographic integrity check. Authenticate patches separately when their origin is untrusted.
+
 The API works in memory. Allow room for the source, target, and working buffers. The apply API limits the reconstructed output to `int.MaxValue` bytes, and available memory can impose a lower limit. Patch size depends on shared byte sequences. For unrelated inputs, a patch can exceed the size of the target.
+
+For untrusted patches, pass an application-specific output-size limit in bytes:
+
+```csharp
+var restored = Delta.ApplyBinary(source, patch.Data.Span,
+    maxOutputLength: 64 * 1024 * 1024); // Example budget: 64 MiB.
+```
+
+`ApplyFossil` and `ApplyASCII` accept the same parameter. With `using DeltaSharp;`, it is also available as `codec.Apply.Apply(source, patch.Data.Span, maxOutputLength: limit)` on an `IDelta` instance. The declared size is checked before output allocation; exceeding the limit throws `DeltaApplyException` with `Error == OutputLengthLimitExceeded`. Zero permits only empty output, and negative limits throw `ArgumentOutOfRangeException`. Existing overloads retain their behavior. The limit applies to each call's output buffer, not total process memory or concurrent calls. Output-length and checksum validation still run for patches within the limit.
+
+`GetOutputLength()` only reads the declared size; it does not validate the rest of the patch. The overload accepting `Memory<byte>` writes only the declared output range and returns a view of that memory. Overlapping source or patch data is copied internally before writing; failed applications may leave partially written output. Applying stops at the first valid checksum, so trailing bytes are not validated.
+
+## Choosing search effort
+
+Existing calls use `DeltaSearchMode.Exhaustive`, which searches the full source
+candidate chain unless it finds a match for all remaining target bytes. For a
+limit of 256 candidates per target position, select `DeltaSearchMode.Bounded`:
+
+```csharp
+var patch = Delta.CreateBinary(source, target, DeltaSharp.DeltaSearchMode.Bounded);
+```
+
+The same overload is available on `CreateASCII` and `CreateFossil`. Both modes
+reconstruct the target exactly. Bounded mode can avoid excessive searching on
+repetitive data, but may produce much larger patches and is not faster for every
+input. Exhaustive mode preserves the existing search behavior; it does not
+guarantee the globally smallest patch. The limit bounds candidate visits, not
+elapsed time.
+
+To reuse a codec with bounded search, construct `new DeltaBinary(DeltaSearchMode.Bounded)`
+(or `DeltaASCII` / `DeltaFossil`) and call its `Create.Create(source, target)` method.
+The existing parameterless constructors remain exhaustive. Custom generic
+creators support `new DeltaCreate<TWriter, TChecksum>(checksum, searchMode)` and
+a per-call `Create(source, target, searchMode)` override. Modes are not global
+settings; selecting one for a call does not change another call's mode.
 
 ## Example: patch two copies of *Moby-Dick*
 
@@ -74,6 +113,29 @@ The round-trip benchmark creates and applies a patch after swapping two groups o
 | Fossil | 1048576 | 752.158 us | 7.3950 us | 6.5555 us | 1.7520 us |   1,329.5 |  1.00 |    0.01 | 332.0313 |     784 B | 332.0313 | 332.0313 | 1537.01 KB |        1.00 |
 | Binary | 1048576 | 756.173 us | 9.7535 us | 8.6463 us | 2.3108 us |   1,322.4 |  1.01 |    0.01 | 332.0313 |     784 B | 332.0313 | 332.0313 |    1537 KB |        1.00 |
 
+To run the hash-table comparisons, use the benchmark filter:
+
+```sh
+dotnet run -c Release --project src/Benchmarks/SharpFossilBenchmarks.csproj -- --filter '*Hashtable*'
+```
+
+Add `-p:Enable24BitHashtable=true` before `--` to include 24-bit comparisons.
+The runner forwards this flag to BenchmarkDotNet's generated build. Use
+`--list flat` after `--` to list benchmarks, or add `--job Dry` to the filter
+command for a smoke run rather than a performance measurement.
+
+Hash-table benchmarks measure construction, one lookup, and disposal with
+warmed pools. Small-input cases compare all enabled index widths using the
+same inputs from 512 through 2,047 bytes, including index-selection boundaries;
+larger cases compare 32-bit and optional 24-bit storage from 512 KiB to 64 MiB.
+The `Allocated` column measures
+new allocations per operation, not memory retained in the pools. These cases
+do not measure sustained lookup throughput or collision-heavy searches.
+
+Use `--filter '*DeltaSearch*'` to compare full patch creation in both search
+modes. These benchmarks include repetitive changes and a useful match beyond
+candidate 256, demonstrating both the speed benefit and the larger-patch case.
+
 ## Build and test
 
 Use the .NET 11 SDK to build all five NuGet assemblies from the repository root:
@@ -90,6 +152,19 @@ With the .NET 8 through 11 runtimes installed, run the suite on each runtime, th
 dotnet test src/UnitTests/SharpFossilUnitTests.csproj -c Release
 dotnet test src/UnitTests/SharpFossilUnitTests.csproj -c Release -f net8.0 -p:TestNetStandard=true
 ```
+
+The 24-bit hash table is excluded by default; inputs above the 16-bit table's
+limit use the 32-bit table. To include the 24-bit implementation and restore its
+size-based selection, build with:
+
+```sh
+dotnet build src/DeltaSharp/DeltaSharp.csproj -c Release -p:Enable24BitHashtable=true
+```
+
+`Enable24BitHashtable` defines the `DELTASHARP_HASHTABLE24` compile symbol across
+the library, tests, and benchmarks. Pass the same property to `dotnet test` or
+benchmark builds to include their 24-bit cases. This is a build-time option;
+it does not change an already-built NuGet assembly.
 
 ## Publishing to NuGet
 

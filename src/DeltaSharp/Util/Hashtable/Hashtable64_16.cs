@@ -12,8 +12,9 @@ namespace DeltaSharp.Util.Hashtable;
 
 
 /// <summary>
-/// Specialized hashtable to handle data of 524,280 bytes or less in size
-/// The trick here is avoiding heap allocations and using a stack allocated fixed size buffer
+/// Stores up to 65,535 complete 8-byte blocks (source lengths through 524,287 bytes)
+/// using 16-bit, one-based block indices. Uses a managed array for smaller tables
+/// and rents an array from the shared pool for larger tables.
 /// </summary>
 internal readonly ref struct Hashtable64_16
 {
@@ -24,7 +25,7 @@ internal readonly ref struct Hashtable64_16
 
     private readonly ulong _nHashBitMask;
 
-    private readonly ushort[] _buffer;
+    private readonly ushort[]? _buffer;
 
     public Hashtable64_16(ReadOnlySpan<byte> data)
     {

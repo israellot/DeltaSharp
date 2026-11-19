@@ -1,139 +1,88 @@
-﻿using DeltaSharp.Util;
 using System.Buffers.Text;
-using System.Text;
 
 namespace DeltaSharp.Format;
 
+/// <summary>Reads DeltaSharp ASCII command headers with decimal integer operands.</summary>
+/// <remarks>Insert payloads contain raw bytes and need not be ASCII text.</remarks>
 public class ASCIIDeltaReader : IDeltaReader
 {
-    
-
+    /// <inheritdoc cref="IDeltaReader.TryRead"/>
     public bool TryRead(ReadOnlySpan<byte> input, out DeltaCommand command, out uint consumed)
     {
         command = default;
         consumed = 0;
+        var originalLength = input.Length;
 
-        if (input.IsEmpty)
-            return false;
-
-        // Skip leading line breaks. The loop must re-check for end-of-input on every
-        // iteration, otherwise input consisting only of '\n'/'\r' slices down to empty
-        // and the dereference below throws IndexOutOfRangeException.
-        while(!input.IsEmpty && ((char)input[0]=='\n' || (char)input[0]=='\r'))
-        {
-            consumed++;
+        while (!input.IsEmpty && (input[0] == '\n' || input[0] == '\r'))
             input = input.Slice(1);
-        }
 
         if (input.IsEmpty)
             return false;
 
-        var commandChar = (char)input[0];
+        var commandByte = input[0];
+        if (commandByte != 'l' && commandByte != 'c' && commandByte != 'i' && commandByte != 'v')
+            throw new DeltaReaderException("Invalid command");
 
-        switch (commandChar)
+        if (input.Length < 2)
+            return false;
+        if (input[1] != ' ')
+            throw new DeltaReaderException("Expected whitespace");
+        input = input.Slice(2);
+
+        if (!Utf8Parser.TryParse(input, out ulong first, out var firstBytes))
+            throw new DeltaReaderException("Failed to parse number");
+        input = input.Slice(firstBytes);
+
+        ulong position = 0;
+        ulong length = first;
+        if (commandByte == 'c')
         {
-            case 'l':
-                {
-                    input = input.Slice(1);
-
-                    var newLineIndex = input.IndexOf((byte)'\n');
-                    if (newLineIndex < 0)
-                        return false;
-
-                    if (input[0] != (byte)' ')
-                        throw new DeltaReaderException("Expected whitespace");
-
-                    input = input.Slice(1);
-
-                    if (!Utf8Parser.TryParse(input, out ulong length, out var lengthBytes))
-                        throw new DeltaReaderException("Failed to parse number");
-
-                    consumed += (uint)lengthBytes + 3; //number + c + whitespace + newline
-
-                    command = new DeltaCommand(DeltaCommandEnum.Length, 0, length);
-
-                    return true;
-                }
-            case 'c':
-                {
-                    input = input.Slice(1);
-
-                    var newLineIndex = input.IndexOf((byte)'\n');
-                    if (newLineIndex < 0)
-                        return false;
-
-                    if (input[0] != (byte)' ')
-                        throw new DeltaReaderException("Expected whitespace");
-
-                    input = input.Slice(1);
-
-                    if (!Utf8Parser.TryParse(input, out ulong position, out var positionBytes))
-                        throw new DeltaReaderException("Failed to parse number");
-
-                    // There must actually be a whitespace separator between the two
-                    // numbers. Without this check, Slice(positionBytes+1) can run past
-                    // the end of a truncated/malformed copy command (no separator).
-                    if (positionBytes >= input.Length || input[positionBytes] != (byte)' ')
-                        throw new DeltaReaderException("Expected whitespace");
-
-                    input = input.Slice(positionBytes+1);//advance position + whitespace
-
-                    if (!Utf8Parser.TryParse(input, out ulong length, out var lengthBytes))
-                        throw new DeltaReaderException("Failed to parse number");
-
-                    consumed += (uint)positionBytes + (uint)lengthBytes + 4; //numbers + c + 2*whitespace + newline
-
-                    command = new DeltaCommand(DeltaCommandEnum.Copy, position, length);
-
-                    return true;
-                }
-            case 'i':
-                {
-                    input = input.Slice(1);
-
-                    var newLineIndex = input.IndexOf((byte)'\n');
-                    if (newLineIndex < 0)
-                        return false;
-
-                    if (input[0] != (byte)' ')
-                        throw new DeltaReaderException("Expected whitespace");
-
-                    input = input.Slice(1);
-
-                    if (!Utf8Parser.TryParse(input, out ulong length, out var lengthBytes))
-                        throw new DeltaReaderException("Failed to parse number");
-
-                    consumed += (uint)lengthBytes + 3; // number + c + whitespace + newline
-
-                    command = new DeltaCommand(DeltaCommandEnum.Insert, 0, length);
-
-                    return true;
-                }
-            case 'v':
-                {
-                    input = input.Slice(1);
-
-                    if(input.IsEmpty)
-                        throw new DeltaReaderException("Expected whitespace");
-
-                    if (input[0] != (byte)' ')
-                        throw new DeltaReaderException("Expected whitespace");
-
-                    input = input.Slice(1);
-
-                    if (!Utf8Parser.TryParse(input, out ulong length, out var lengthBytes))
-                        throw new DeltaReaderException("Failed to parse number");
-
-                    consumed += (uint)lengthBytes + 2; //number + c + whitespace
-
-                    command = new DeltaCommand(DeltaCommandEnum.Checksum, 0, length);
-
-                    return true;
-                }
-            default:
-                throw new DeltaReaderException("Invalid command");
+            if (input.IsEmpty || input[0] != ' ')
+                throw new DeltaReaderException("Expected whitespace");
+            input = input.Slice(1);
+            position = first;
+            if (!Utf8Parser.TryParse(input, out length, out var lengthBytes))
+                throw new DeltaReaderException("Failed to parse number");
+            input = input.Slice(lengthBytes);
         }
+
+        if (commandByte == 'v')
+        {
+            if (!input.IsEmpty && input[0] != '\n' && input[0] != '\r')
+                throw new DeltaReaderException("Expected end of checksum");
+        }
+        else
+        {
+            if (input.IsEmpty)
+                return false;
+
+            // Insert data can follow a space (writer format) or a line ending.
+            // Consume only the separator: literal data may itself start with CR/LF.
+            if (commandByte == 'i' && input[0] == ' ')
+                input = input.Slice(1);
+            else if (input[0] == '\n')
+                input = input.Slice(1);
+            else if (input[0] == '\r')
+            {
+                if (input.Length < 2)
+                    return false;
+                if (input[1] != '\n')
+                    throw new DeltaReaderException("Expected newline");
+                input = input.Slice(2);
+            }
+            else
+                throw new DeltaReaderException("Expected newline");
+        }
+
+        var kind = commandByte switch
+        {
+            (byte)'l' => DeltaCommandEnum.Length,
+            (byte)'c' => DeltaCommandEnum.Copy,
+            (byte)'i' => DeltaCommandEnum.Insert,
+            _ => DeltaCommandEnum.Checksum
+        };
+        command = new DeltaCommand(kind, position, length);
+        consumed = (uint)(originalLength - input.Length);
+        return true;
     }
-
 }
-

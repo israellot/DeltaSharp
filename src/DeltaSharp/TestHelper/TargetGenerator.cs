@@ -75,7 +75,7 @@ internal class TargetGeneratorOperation
 {
     public OperationEnum Op { get; set; }
 
-    public string[]? Args { get; set; }
+    public string[] Args { get; set; } = Array.Empty<string>();
 
 
     private TargetGeneratorOperation()
@@ -291,7 +291,7 @@ internal class TargetGeneratorOperation
         var skip = 0;
         while (sb.Length < source.Length)
         {
-            var s = source.Substring(skip, 16);
+            var s = source.Substring(skip, Math.Min(16, source.Length - skip));
             var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(s));
             var hashString = Convert.ToBase64String(hash).Replace("==", "").Replace("=", "");
             sb.Append(hashString);
@@ -323,7 +323,8 @@ internal class TargetGeneratorOperation
         var operations = new List<TargetGeneratorOperation>();
 
         foreach(var line in lines)
-            operations.Add(ParseOperation(line));
+            if (!string.IsNullOrWhiteSpace(line))
+                operations.Add(ParseOperation(line.Trim()));
 
         return operations.ToArray();
     }
