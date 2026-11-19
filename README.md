@@ -52,6 +52,30 @@ var restored = Delta.ApplyBinary(source, patch.Data.Span,
 
 `GetOutputLength()` only reads the declared size; it does not validate the rest of the patch. The overload accepting `Memory<byte>` writes only the declared output range and returns a view of that memory. Overlapping source or patch data is copied internally before writing; failed applications may leave partially written output. Applying stops at the first valid checksum, so trailing bytes are not validated.
 
+## Choosing search effort
+
+Existing calls use `DeltaSearchMode.Exhaustive`, which searches the full source
+candidate chain unless it finds a match for all remaining target bytes. For a
+limit of 256 candidates per target position, select `DeltaSearchMode.Bounded`:
+
+```csharp
+var patch = Delta.CreateBinary(source, target, DeltaSharp.DeltaSearchMode.Bounded);
+```
+
+The same overload is available on `CreateASCII` and `CreateFossil`. Both modes
+reconstruct the target exactly. Bounded mode can avoid excessive searching on
+repetitive data, but may produce much larger patches and is not faster for every
+input. Exhaustive mode preserves the existing search behavior; it does not
+guarantee the globally smallest patch. The limit bounds candidate visits, not
+elapsed time.
+
+To reuse a codec with bounded search, construct `new DeltaBinary(DeltaSearchMode.Bounded)`
+(or `DeltaASCII` / `DeltaFossil`) and call its `Create.Create(source, target)` method.
+The existing parameterless constructors remain exhaustive. Custom generic
+creators support `new DeltaCreate<TWriter, TChecksum>(checksum, searchMode)` and
+a per-call `Create(source, target, searchMode)` override. Modes are not global
+settings; selecting one for a call does not change another call's mode.
+
 ## Example: patch two copies of *Moby-Dick*
 
 The repository includes two Project Gutenberg texts in [the benchmark data directory](https://github.com/israellot/DeltaSharp/tree/main/src/Benchmarks/Data). To try them, use the following `Program.cs` in the same console project. Pass the data directory as the argument to `dotnet run -- /path/to/DeltaSharp/src/Benchmarks/Data`.
@@ -107,6 +131,10 @@ larger cases compare 32-bit and optional 24-bit storage from 512 KiB to 64 MiB.
 The `Allocated` column measures
 new allocations per operation, not memory retained in the pools. These cases
 do not measure sustained lookup throughput or collision-heavy searches.
+
+Use `--filter '*DeltaSearch*'` to compare full patch creation in both search
+modes. These benchmarks include repetitive changes and a useful match beyond
+candidate 256, demonstrating both the speed benefit and the larger-patch case.
 
 ## Build and test
 
