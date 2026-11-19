@@ -11,6 +11,18 @@ namespace DeltaSharp.Util.Hashtable;
 
 internal readonly ref struct Hash
 {
+    public static int TableSize(int blockCount)
+    {
+#if NETSTANDARD2_0
+        int size = 1;
+        while (size < blockCount)
+            size <<= 1;
+        return blockCount == 0 ? 0 : size;
+#else
+        return (int)BitOperations.RoundUpToPowerOf2((uint)blockCount);
+#endif
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong Hash64(ulong x)
     {

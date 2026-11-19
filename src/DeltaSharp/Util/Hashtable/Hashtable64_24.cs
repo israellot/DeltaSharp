@@ -8,7 +8,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DeltaSharp.Util.Hashtable;
 
@@ -37,7 +36,7 @@ internal unsafe readonly ref struct Hashtable64_24
             throw new ArgumentException($"Max allowed size is {0x00_ff_ff_ff * 8}", nameof(data));
 
         // Compute the hash table used to locate matching sections in the source.
-        int nHash = (int)BitOperations.RoundUpToPowerOf2((uint)nLong);
+        int nHash = Hash.TableSize(nLong);
 
         _nHashBitMask = (ulong)(nHash - 1);
 
@@ -113,7 +112,7 @@ internal unsafe readonly ref struct Hashtable64_24
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private unsafe int Read(ReadOnlySpan<byte> arr, int offset)
     {
-        var v32p = Unsafe.ReadUnaligned<uint>(ref Unsafe.AddByteOffset(ref MemoryMarshal.GetReference(arr),offset*3));
+        var v32p = Unsafe.ReadUnaligned<uint>(ref Unsafe.Add(ref MemoryMarshal.GetReference(arr), offset * 3));
         return (int)((v32p) & 0x00_ff_ff_ff);
     }
 

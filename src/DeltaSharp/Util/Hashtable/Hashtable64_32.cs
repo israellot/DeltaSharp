@@ -37,7 +37,7 @@ internal unsafe readonly ref struct Hashtable64_32
         var nLong = (int)data.Length / 8;
                 
         // Compute the hash table used to locate matching sections in the source.
-        int nHash = (int)BitOperations.RoundUpToPowerOf2((uint)nLong);
+        int nHash = Hash.TableSize(nLong);
 
         _nHashBitMask = (ulong)(nHash - 1);
 
