@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+            11.0.x
+      - name: Build the solution
+        run: dotnet build src/DeltaSharp.sln -c Release
+      - name: Test .NET 8 through 11
+        run: dotnet test src/UnitTests/SharpFossilUnitTests.csproj -c Release --no-restore
+      - name: Test .NET Standard on .NET 8
+        run: dotnet test src/UnitTests/SharpFossilUnitTests.csproj -c Release -f net8.0 -p:TestNetStandard=true --no-restore
+      - name: Test .NET 8 through 11 with 24-bit tables
+        run: dotnet test src/UnitTests/SharpFossilUnitTests.csproj -c Release -p:Enable24BitHashtable=true --no-restore
+      - name: Test .NET Standard with 24-bit tables on .NET 8
+        run: dotnet test src/UnitTests/SharpFossilUnitTests.csproj -c Release -f net8.0 -p:TestNetStandard=true -p:Enable24BitHashtable=true --no-restore
