@@ -87,8 +87,9 @@ command for a smoke run rather than a performance measurement.
 
 Hash-table benchmarks measure construction, one lookup, and disposal with
 warmed pools. Small-input cases compare all enabled index widths using the
-same 512-, 1,024-, and 2,040-byte inputs; larger cases compare 32-bit and
-optional 24-bit storage from 512 KiB to 64 MiB. The `Allocated` column measures
+same inputs from 512 through 2,047 bytes, including index-selection boundaries;
+larger cases compare 32-bit and optional 24-bit storage from 512 KiB to 64 MiB.
+The `Allocated` column measures
 new allocations per operation, not memory retained in the pools. These cases
 do not measure sustained lookup throughput or collision-heavy searches.
 

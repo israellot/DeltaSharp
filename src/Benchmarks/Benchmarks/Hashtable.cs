@@ -14,7 +14,7 @@ public class HashtableConstructionAddressSize
     private byte[] _data;
 
     // Zero is the empty-slot sentinel, so byte indices support 255 blocks.
-    [Params(512, 1024, byte.MaxValue * 8)]
+    [Params(512, 1020, 1024, 1032, byte.MaxValue * 8, 2047)]
     public int Bytes { get; set; }
 
     [GlobalSetup]
