@@ -20,23 +20,44 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
     where TChecksum : IDeltaChecksum,new()
 {
     private const int MinEvaluateLength = 16;
+    private const int BoundedCandidateLimit = 256;
     private static readonly System.Reflection.ConstructorInfo? SizeHintConstructor =
         typeof(TWriter).GetConstructor(new[] { typeof(int) });
 
 
-    TChecksum _checksum;
+    private TChecksum _checksum;
+    private readonly int _maxCandidatesPerPosition;
 
-    public DeltaCreate()
-    {        
-        _checksum = new();
+    public DeltaCreate() : this(new TChecksum(), DeltaSearchMode.Exhaustive)
+    {
     }
 
-    public DeltaCreate(TChecksum checksum)
-    {        
+    public DeltaCreate(TChecksum checksum) : this(checksum, DeltaSearchMode.Exhaustive)
+    {
+    }
+
+    public DeltaCreate(TChecksum checksum, DeltaSearchMode searchMode)
+    {
+        _maxCandidatesPerPosition = GetCandidateLimit(searchMode);
         _checksum = checksum;
     }
 
     public DeltaResult Create(ReadOnlySpan<byte> origin, ReadOnlySpan<byte> target)
+        => CreateCore(origin, target, _maxCandidatesPerPosition);
+
+    /// <summary>Creates a patch using the selected search mode for this call only.</summary>
+    public DeltaResult Create(ReadOnlySpan<byte> origin, ReadOnlySpan<byte> target, DeltaSearchMode searchMode)
+        => CreateCore(origin, target, GetCandidateLimit(searchMode));
+
+    private static int GetCandidateLimit(DeltaSearchMode searchMode) => searchMode switch
+    {
+        // Source spans cannot contain enough eight-byte blocks to reach this limit.
+        DeltaSearchMode.Exhaustive => int.MaxValue,
+        DeltaSearchMode.Bounded => BoundedCandidateLimit,
+        _ => throw new ArgumentOutOfRangeException(nameof(searchMode), searchMode, "Unknown search mode.")
+    };
+
+    private DeltaResult CreateCore(ReadOnlySpan<byte> origin, ReadOnlySpan<byte> target, int maxCandidatesPerPosition)
     {
         using var writer = SizeHintConstructor is null
             ? new TWriter()
@@ -79,7 +100,8 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
             var bestMatchedBackwards = 0;
 
             var p = hashtable.Match(next);
-            while (p >= 0)
+            var candidatesRemaining = maxCandidatesPerPosition;
+            while (p >= 0 && candidatesRemaining-- > 0)
             {
                 //target matched at landmark on origin
 
