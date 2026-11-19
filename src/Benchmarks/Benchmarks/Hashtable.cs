@@ -1,116 +1,100 @@
-﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Diagnosers;
+using BenchmarkDotNet.Attributes;
 using DeltaSharp.Util.Hashtable;
 using System;
 
 namespace SharpFossilBenchmarks.Benchmarks;
 
-
-
-[MemoryDiagnoser(false)]
+// Each operation includes construction, one lookup and disposal. Setup warms
+// the pools so these benchmarks measure reuse, as in repeated delta creation.
+[MemoryDiagnoser]
 [AllStatisticsColumn]
-[HideColumns("Median","StdError","Q1","Q3","Max","Min")]
+[HideColumns("Median", "StdError", "Q1", "Q3", "Max", "Min")]
 public class HashtableConstructionAddressSize
 {
+    private byte[] _data;
 
-    public ReadOnlyMemory<byte> _1Mb { get; set; }
-
-    public ReadOnlyMemory<byte> _512k { get; set; }
-
-    public ReadOnlyMemory<byte> _2k { get; set; }
-
-    public HashtableConstructionAddressSize()
-    {
-
-    }
+    // Zero is the empty-slot sentinel, so byte indices support 255 blocks.
+    [Params(512, 1020, 1024, 1032, byte.MaxValue * 8, 2047)]
+    public int Bytes { get; set; }
 
     [GlobalSetup]
     public void Setup()
     {
-        var data = new byte[1024*1024];
-        var random = new Random(11);
-        random.NextBytes(data);
-
-        _1Mb = data;
-        _512k = new ReadOnlyMemory<byte>(data,0, 1024 * 512);
-        _2k = new ReadOnlyMemory<byte>(data, 0, 1024*2);
+        _data = new byte[Bytes];
+        new Random(11).NextBytes(_data);
+        Hashtable8();
+        Hashtable16();
+#if DELTASHARP_HASHTABLE24
+        Hashtable24();
+#endif
+        Hashtable32();
     }
-        
 
     [Benchmark]
     public int Hashtable8()
     {
-        var hashtable = new Hashtable64_8(_2k.Span);
-
-        return hashtable.Match(_2k.Span);
+        using var hashtable = new Hashtable64_8(_data);
+        return hashtable.Match(_data);
     }
 
     [Benchmark]
     public int Hashtable16()
     {
-        var hashtable = new Hashtable64_16(_2k.Span);
-
-        return hashtable.Match(_2k.Span);
+        using var hashtable = new Hashtable64_16(_data);
+        return hashtable.Match(_data);
     }
 
-
+#if DELTASHARP_HASHTABLE24
     [Benchmark]
     public int Hashtable24()
     {
-        var hashtable = new Hashtable64_24(_2k.Span);
-
-        return hashtable.Match(_2k.Span);
+        using var hashtable = new Hashtable64_24(_data);
+        return hashtable.Match(_data);
     }
-        
-    [Benchmark]
+#endif
+
+    [Benchmark(Baseline = true)]
     public int Hashtable32()
     {
-        var hashtable = new Hashtable64_32(_2k.Span);
-
-        return hashtable.Match(_2k.Span);
+        using var hashtable = new Hashtable64_32(_data);
+        return hashtable.Match(_data);
     }
-
 }
 
-
-
-[MemoryDiagnoser(true)]
+[MemoryDiagnoser]
 [AllStatisticsColumn]
 [HideColumns("Median", "StdError", "Q1", "Q3", "Max", "Min")]
-public class HashtableConstructionThroughtput
+public class HashtableConstructionThroughput
 {
+    private byte[] _data;
 
-    public ReadOnlyMemory<byte> _10Mb { get; set; }
-
-    public HashtableConstructionThroughtput()
-    {
-
-    }
+    [Params(512 * 1024, 1024 * 1024, 10 * 1024 * 1024, 64 * 1024 * 1024)]
+    public int Bytes { get; set; }
 
     [GlobalSetup]
     public void Setup()
     {
-        var data = new byte[1024 * 1024*10];
-        var random = new Random(11);
-        random.NextBytes(data);
-
-        _10Mb = data;
+        _data = new byte[Bytes];
+        new Random(11).NextBytes(_data);
+#if DELTASHARP_HASHTABLE24
+        Hashtable24();
+#endif
+        Hashtable32();
     }
 
-    [Benchmark]
+    [Benchmark(Baseline = true)]
     public int Hashtable32()
     {
-        var hashtable = new Hashtable64_32(_10Mb.Span);
-
-        return hashtable.Match(_10Mb.Span);
+        using var hashtable = new Hashtable64_32(_data);
+        return hashtable.Match(_data);
     }
 
+#if DELTASHARP_HASHTABLE24
     [Benchmark]
     public int Hashtable24()
     {
-        var hashtable = new Hashtable64_24(_10Mb.Span);
-
-        return hashtable.Match(_10Mb.Span);
+        using var hashtable = new Hashtable64_24(_data);
+        return hashtable.Match(_data);
     }
-
+#endif
 }
