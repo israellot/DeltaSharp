@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 namespace DeltaSharp.Util.Hashtable;
 
 /// <summary>
-/// Specialized hashtable to handle data of 134,217,720 bytes or less in size
-/// The trick here using what would be a uint24 ( 3 bytes ) to store the address and hash
-/// Such primitive does not exist in C# so we use a uint32 and mask the last byte when writing to the buffer,
-/// effectively creating a uint24 array.
+/// Stores source landmarks and collision chains using 32-bit, zero-based block indices
+/// in a pooled integer array, with -1 marking empty slots. The indices address all complete
+/// 8-byte blocks in an int-sized source span; allocation remains subject to available memory
+/// and runtime array-size limits.
 /// </summary>
 internal unsafe readonly ref struct Hashtable64_32
 {

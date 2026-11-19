@@ -2,9 +2,11 @@
 
 namespace DeltaSharp.Format;
 
+/// <summary>Reads DeltaSharp binary command headers with variable-length integer operands.</summary>
 public class BinaryDeltaReader : IDeltaReader
 {
 
+    /// <inheritdoc cref="IDeltaReader.TryRead"/>
     public bool TryRead(ReadOnlySpan<byte> input, out DeltaCommand command, out uint consumed)
     {
         command = default;
@@ -76,9 +78,13 @@ public class BinaryDeltaReader : IDeltaReader
 
 }
 
+/// <summary>Reports invalid syntax or an unsupported numeric value in an encoded delta command.</summary>
 public class DeltaReaderException : Exception
 {
+    /// <summary>Initializes a reader exception with the default exception message.</summary>
     public DeltaReaderException() { }
 
+    /// <summary>Initializes a reader exception with a description of the parsing failure.</summary>
+    /// <param name="message">The description of the invalid command.</param>
     public DeltaReaderException(string message) : base(message) { }
 }

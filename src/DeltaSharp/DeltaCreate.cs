@@ -10,11 +10,26 @@ using System.Runtime.InteropServices;
 
 namespace DeltaSharp;
 
+/// <summary>Creates patches that reconstruct a target from an original source.</summary>
 public interface IDeltaCreate
 {
+    /// <summary>Creates a patch using this encoder's format, checksum algorithm, and search settings.</summary>
+    /// <param name="origin">The original source bytes that will be available when applying the patch; may be empty.</param>
+    /// <param name="target">The desired reconstructed bytes; may be empty.</param>
+    /// <returns>The encoded patch and the checksum of the target, rather than of the patch bytes.</returns>
+    /// <remarks>The patch must be applied with the same format and checksum algorithm. Inputs are not modified.</remarks>
     DeltaResult Create(ReadOnlySpan<byte> origin, ReadOnlySpan<byte> target);
 }
 
+/// <summary>Creates patches using a configurable format writer and target checksum algorithm.</summary>
+/// <typeparam name="TWriter">The patch writer, with a public parameterless constructor.</typeparam>
+/// <typeparam name="TChecksum">The target checksum algorithm, with a public parameterless constructor.</typeparam>
+/// <remarks>
+/// Each call creates and disposes a writer. If the writer has a public constructor taking a single
+/// <see cref="int"/>, it receives an initial capacity hint in bytes. Output returned by the writer must
+/// remain valid after disposal. The checksum instance is reused, so its implementation determines
+/// whether concurrent calls are safe. Source-match search does not guarantee a minimum-size patch.
+/// </remarks>
 public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
     where TWriter : IDeltaWriter, new()
     where TChecksum : IDeltaChecksum,new()
@@ -28,24 +43,38 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
     private TChecksum _checksum;
     private readonly int _maxCandidatesPerPosition;
 
+    /// <summary>Initializes an encoder with a new checksum instance and exhaustive source-match search.</summary>
     public DeltaCreate() : this(new TChecksum(), DeltaSearchMode.Exhaustive)
     {
     }
 
+    /// <summary>Initializes an encoder with the supplied checksum instance and exhaustive source-match search.</summary>
+    /// <param name="checksum">The non-null checksum implementation to retain for subsequent calls.</param>
     public DeltaCreate(TChecksum checksum) : this(checksum, DeltaSearchMode.Exhaustive)
     {
     }
 
+    /// <summary>Initializes an encoder with the supplied checksum instance and default source-match search mode.</summary>
+    /// <param name="checksum">The non-null checksum implementation to retain for subsequent calls.</param>
+    /// <param name="searchMode">The search-effort policy used by calls without an explicit mode.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="searchMode"/> is not a defined search mode.</exception>
     public DeltaCreate(TChecksum checksum, DeltaSearchMode searchMode)
     {
         _maxCandidatesPerPosition = GetCandidateLimit(searchMode);
         _checksum = checksum;
     }
 
+    /// <inheritdoc cref="IDeltaCreate.Create"/>
     public DeltaResult Create(ReadOnlySpan<byte> origin, ReadOnlySpan<byte> target)
         => CreateCore(origin, target, _maxCandidatesPerPosition);
 
     /// <summary>Creates a patch using the selected search mode for this call only.</summary>
+    /// <param name="origin">The original source bytes that will be available when applying the patch; may be empty.</param>
+    /// <param name="target">The desired reconstructed bytes; may be empty.</param>
+    /// <param name="searchMode">The search-effort policy for this call; does not change the encoder's default.</param>
+    /// <returns>The encoded patch and the checksum of the target, rather than of the patch bytes.</returns>
+    /// <remarks>The patch must be applied with the same format and checksum algorithm. Inputs are not modified.</remarks>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="searchMode"/> is not a defined search mode.</exception>
     public DeltaResult Create(ReadOnlySpan<byte> origin, ReadOnlySpan<byte> target, DeltaSearchMode searchMode)
         => CreateCore(origin, target, GetCandidateLimit(searchMode));
 
@@ -170,33 +199,60 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
 
 }
 
+/// <summary>Contains the bytes produced by creating or applying a patch and the target checksum.</summary>
 public class DeltaResult
 {
+    /// <summary>Gets or sets the encoded patch after creation, or the reconstructed target after application.</summary>
+    /// <remarks>
+    /// A read-only view does not make the backing storage immutable. When applying into caller-provided
+    /// memory, this references the written portion of that memory. Built-in allocating overloads return
+    /// newly allocated storage; custom writers determine the storage lifetime of their creation results.
+    /// </remarks>
     public ReadOnlyMemory<byte> Data { get; set; }
 
-    /// <summary>The Fossil additive checksum, retained under its historical name; not a CRC-32.</summary>
+    /// <summary>Gets or sets the checksum of the reconstructed target, as computed by the configured checksum implementation.</summary>
+    /// <remarks>
+    /// The built-in formats use the Fossil additive checksum, not CRC-32. The property retains its
+    /// historical name; custom checksum implementations may use a different algorithm.
+    /// </remarks>
     public uint Crc32 { get; set; }
 
 }
 
 
+/// <summary>Represents a delta creation failure using the legacy creation error codes.</summary>
+/// <remarks>
+/// Retained for API compatibility. The built-in encoder currently does not throw this type;
+/// invalid search modes throw <see cref="ArgumentOutOfRangeException"/> and writer or checksum failures propagate.
+/// </remarks>
 public class DeltaCreateException : Exception
 {
+    /// <summary>Gets the creation error code supplied to the constructor.</summary>
     public DeltaCreateExceptionError Error { get; private set; }
 
+    /// <summary>Initializes an exception with the specified legacy creation error code.</summary>
+    /// <param name="error">The error code to report.</param>
     public DeltaCreateException(DeltaCreateExceptionError error)
     {
         Error = error;
     }
 
+    /// <summary>Defines legacy creation error codes retained for API compatibility.</summary>
     public enum DeltaCreateExceptionError
     {
+        /// <summary>Identifies an invalid delta representation.</summary>
         InvalidDelta,
+        /// <summary>Identifies an invalid output length.</summary>
         InvalidOutputLength,
+        /// <summary>Identifies output memory smaller than the required length.</summary>
         OutputMemorySizeLessThanRequired,
+        /// <summary>Identifies an invalid literal insertion length.</summary>
         InvalidInsertLength,
+        /// <summary>Identifies an invalid source position for a copy.</summary>
         InvalidCopyPosition,
+        /// <summary>Identifies an invalid source copy length.</summary>
         InvalidCopyLength,
+        /// <summary>Identifies an invalid checksum.</summary>
         InvalidChecksum,
 
     }
