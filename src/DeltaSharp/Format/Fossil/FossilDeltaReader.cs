@@ -5,6 +5,8 @@ using System.Text;
 
 namespace DeltaSharp.Format;
 
+/// <summary>Reads Fossil delta command headers with unsigned 32-bit base-64 integer operands.</summary>
+/// <remarks>A copy count of zero copies no bytes. Insert payloads are raw bytes.</remarks>
 public class FossilDeltaReader : IDeltaReader
 {
 
@@ -19,6 +21,7 @@ public class FossilDeltaReader : IDeltaReader
             52, 53, 54, 55, 56, 57, 58, 59,   60, 61, 62, -1, -1, -1, 63, -1
         };
 
+    /// <summary>Initializes a Fossil delta reader.</summary>
     public FossilDeltaReader()
     {
 
@@ -49,6 +52,7 @@ public class FossilDeltaReader : IDeltaReader
 
     }
 
+    /// <inheritdoc cref="IDeltaReader.TryRead"/>
     public bool TryRead(ReadOnlySpan<byte> input, out DeltaCommand command, out uint consumed)
     {
         command = default;

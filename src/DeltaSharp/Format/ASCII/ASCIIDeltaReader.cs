@@ -2,8 +2,11 @@ using System.Buffers.Text;
 
 namespace DeltaSharp.Format;
 
+/// <summary>Reads DeltaSharp ASCII command headers with decimal integer operands.</summary>
+/// <remarks>Insert payloads contain raw bytes and need not be ASCII text.</remarks>
 public class ASCIIDeltaReader : IDeltaReader
 {
+    /// <inheritdoc cref="IDeltaReader.TryRead"/>
     public bool TryRead(ReadOnlySpan<byte> input, out DeltaCommand command, out uint consumed)
     {
         command = default;

@@ -3,9 +3,14 @@
 namespace DeltaSharp.Format;
 
 
+/// <summary>Computes the Fossil 32-bit additive checksum used by the built-in delta formats.</summary>
+/// <remarks>This checksum is neither CRC-32 nor a cryptographic integrity or authenticity check.</remarks>
 public class DeltaChecksum: IDeltaChecksum
 {
 
+    /// <summary>Computes the Fossil additive checksum of the supplied bytes.</summary>
+    /// <param name="arr">The target bytes to checksum.</param>
+    /// <returns>The sum of big-endian 32-bit words modulo 2^32, with the final word padded with trailing zeros; zero for empty input.</returns>
     public unsafe uint Checksum(ReadOnlySpan<byte> arr)
     {
         if (arr.Length == 0) return 0;
