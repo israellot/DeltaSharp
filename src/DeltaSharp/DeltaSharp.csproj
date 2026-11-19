@@ -1,26 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net8.0;net9.0;net10.0;net11.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Title>A binary patch library</Title>
+    <Title>DeltaSharp — Binary Diff and Patch for .NET</Title>
     <Authors>Israel Lot</Authors>
-    <Description>A binary patch library with additional format compatible with Fossil</Description>
+    <Description>Create and apply binary patches in C# using native binary, ASCII, or Fossil delta encoding. Targets .NET 8, 9, 10, 11, and .NET Standard 2.0.</Description>
+    <PackageTags>csharp;dotnet;binary-diff;binary-patching;delta-encoding;fossil;netstandard</PackageTags>
     <Copyright>Copyright © Israel Lot 2024</Copyright>
     <PackageProjectUrl>https://github.com/israellot/DeltaSharp</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/israellot/DeltaSharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.0.8</Version>
-    <AssemblyVersion>1.0.8</AssemblyVersion>
-    <FileVersion>1.0.8</FileVersion>
+    <Version>1.0.9</Version>
+    <AssemblyVersion>1.0.9</AssemblyVersion>
+    <FileVersion>1.0.9</FileVersion>
   </PropertyGroup>
 
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Memory" Version="4.6.3" />
+  </ItemGroup>
 
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
