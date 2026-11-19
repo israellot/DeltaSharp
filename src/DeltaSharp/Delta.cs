@@ -86,13 +86,25 @@ public static class DeltaSharp
         return Binary.Apply.Apply(source, delta);
     }
 
+    /// <summary>Applies a binary patch with an output-size limit checked before allocation.</summary>
+    public static DeltaResult ApplyBinary(ReadOnlySpan<byte> source, ReadOnlySpan<byte> delta, int maxOutputLength)
+        => Binary.Apply.Apply(source, delta, maxOutputLength);
+
     public static DeltaResult ApplyFossil(ReadOnlySpan<byte> source, ReadOnlySpan<byte> delta)
     {
         return Fossil.Apply.Apply(source, delta);
     }
 
+    /// <summary>Applies a Fossil patch with an output-size limit checked before allocation.</summary>
+    public static DeltaResult ApplyFossil(ReadOnlySpan<byte> source, ReadOnlySpan<byte> delta, int maxOutputLength)
+        => Fossil.Apply.Apply(source, delta, maxOutputLength);
+
     public static DeltaResult ApplyASCII(ReadOnlySpan<byte> source, ReadOnlySpan<byte> delta)
     {
         return ASCII.Apply.Apply(source, delta);
     }
+
+    /// <summary>Applies an ASCII patch with an output-size limit checked before allocation.</summary>
+    public static DeltaResult ApplyASCII(ReadOnlySpan<byte> source, ReadOnlySpan<byte> delta, int maxOutputLength)
+        => ASCII.Apply.Apply(source, delta, maxOutputLength);
 }
