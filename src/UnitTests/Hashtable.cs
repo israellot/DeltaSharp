@@ -25,7 +25,7 @@ public class HashtableTests
         Span<byte> data = new byte[0xffffff*8+1];
         random.NextBytes(data);
 
-        var hashtable = new Hashtable64_32(data);
+        using var hashtable = new Hashtable64_32(data);
 
         var matched = hashtable.Match(data.Slice(8));
 
@@ -120,7 +120,7 @@ public class HashtableTests
         Span<byte> data = new byte[ushort.MaxValue*8-1];
         random.NextBytes(data);
 
-        var hashtable = new Hashtable64_16(data);
+        using var hashtable = new Hashtable64_16(data);
 
         var matched = hashtable.Match(data.Slice(8));
         while (matched != 8 && matched > 0)
@@ -141,7 +141,7 @@ public class HashtableTests
         Span<byte> data = new byte[(byte.MaxValue)*8];
         random.NextBytes(data);
 
-        var hashtable = new Hashtable64_8(data);
+        using var hashtable = new Hashtable64_8(data);
 
         var matched = hashtable.Match(data.Slice(8));
         while (matched != 8 && matched > 0)

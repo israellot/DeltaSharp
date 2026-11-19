@@ -24,7 +24,7 @@ internal readonly ref struct Hashtable64_16
 
     private readonly ulong _nHashBitMask;
 
-    private readonly ushort[] _buffer;
+    private readonly ushort[]? _buffer;
 
     public Hashtable64_16(ReadOnlySpan<byte> data)
     {

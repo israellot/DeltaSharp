@@ -31,7 +31,7 @@ public class FossilDeltaReader : IDeltaReader
         {
             uint v = 0;
             int c;
-            while (!input.IsEmpty && (c = zValue[0x7f & input[0]]) >= 0)
+            while (!input.IsEmpty && input[0] < 128 && (c = zValue[input[0]]) >= 0)
             {
                 // Each digit shifts the accumulator left by 6 bits. If the top 6 bits
                 // are already set, another digit would silently overflow the 32-bit
@@ -91,9 +91,8 @@ public class FossilDeltaReader : IDeltaReader
             input = input.Slice(1);
             consumed++;//account for ','
 
-            if (cnt == 0)
-                throw new DeltaReaderException("invalid zero length copy command");
-
+            // Match Fossil's reference decoder: zero copies no bytes, not the
+            // rest of the source. Apply still validates the offset and output.
             command = new DeltaCommand(DeltaCommandEnum.Copy, offset, cnt);
 
             return true;
@@ -101,9 +100,6 @@ public class FossilDeltaReader : IDeltaReader
         }
         else if (cmd == (byte)':')
         {
-            if (cnt == 0)
-                throw new DeltaReaderException("invalid zero length insert command");
-
             command = new DeltaCommand(DeltaCommandEnum.Insert, 0, cnt);
 
             return true;
