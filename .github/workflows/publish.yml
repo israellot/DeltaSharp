@@ -1,0 +1,66 @@
+name: Publish DeltaSharp
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.event_name == 'push' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+            11.0.x
+      - name: Check the release tag against the project version
+        if: github.event_name == 'push'
+        run: |
+          version=$(dotnet msbuild src/DeltaSharp/DeltaSharp.csproj -nologo -getProperty:Version)
+          if [[ "$GITHUB_REF_NAME" != "v$version" ]]; then
+            echo "::error::Tag $GITHUB_REF_NAME must match project version $version"
+            exit 1
+          fi
+      - name: Test modern targets
+        run: dotnet test src/UnitTests/SharpFossilUnitTests.csproj -c Release
+      - name: Test .NET Standard on .NET 8
+        run: dotnet test src/UnitTests/SharpFossilUnitTests.csproj -c Release -f net8.0 -p:TestNetStandard=true
+      - name: Build release package
+        run: dotnet build src/DeltaSharp/DeltaSharp.csproj -c Release -p:PackageOutputPath="$RUNNER_TEMP/package"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: DeltaSharp-package
+          path: ${{ runner.temp }}/package/DeltaSharp.*.nupkg
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: nuget
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: DeltaSharp-package
+          path: package
+      - name: Authenticate to NuGet using GitHub OIDC
+        id: login
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
+        with:
+          user: israellot
+      - name: Publish the tagged version
+        if: github.event_name == 'push'
+        env:
+          NUGET_PUSH_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: dotnet nuget push "package/DeltaSharp.${GITHUB_REF_NAME#v}.nupkg" --api-key "$NUGET_PUSH_KEY" --source https://api.nuget.org/v3/index.json

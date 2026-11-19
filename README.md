@@ -90,3 +90,9 @@ With the .NET 8 through 11 runtimes installed, run the suite on each runtime, th
 dotnet test src/UnitTests/SharpFossilUnitTests.csproj -c Release
 dotnet test src/UnitTests/SharpFossilUnitTests.csproj -c Release -f net8.0 -p:TestNetStandard=true
 ```
+
+## Publishing to NuGet
+
+After merging a version bump to `main`, tag the release commit with `v` followed by the project version (for example, `v1.0.10`), then push that tag. The **Publish DeltaSharp** workflow checks the version, runs the tests, builds the package, and publishes it through the `nuget` GitHub environment. NuGet grants the workflow a short-lived credential scoped to new versions of DeltaSharp.
+
+To check the build and NuGet authentication without publishing, select **Actions → Publish DeltaSharp → Run workflow** on `main`.
