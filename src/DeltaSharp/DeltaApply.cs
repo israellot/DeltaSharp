@@ -219,7 +219,8 @@ public class DeltaApplyException : Exception
         InvalidCopyPosition,
         InvalidCopyLength,
         InvalidChecksum,
-        IncompleteDelta
+        IncompleteDelta,
+        OutputLengthLimitExceeded
 
     }
 }

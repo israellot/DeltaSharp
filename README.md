@@ -41,7 +41,16 @@ Fossil zero-length COPY commands are accepted as no-ops, matching the reference 
 
 The API works in memory. Allow room for the source, target, and working buffers. The apply API limits the reconstructed output to `int.MaxValue` bytes, and available memory can impose a lower limit. Patch size depends on shared byte sequences. For unrelated inputs, a patch can exceed the size of the target.
 
-For untrusted patches, inspect `Delta.Binary.Apply.GetOutputLength(patch.Data.Span)` (or the matching format) and enforce an application-specific size limit before calling the allocating apply overload. The header declares a size; reading it does not validate the rest of the patch. The overload accepting `Memory<byte>` writes only the declared output range and returns a view of that memory. Overlapping source or patch data is copied internally before writing; failed applications may leave partially written output. Applying stops at the first valid checksum, so trailing bytes are not validated.
+For untrusted patches, pass an application-specific output-size limit in bytes:
+
+```csharp
+var restored = Delta.ApplyBinary(source, patch.Data.Span,
+    maxOutputLength: 64 * 1024 * 1024); // Example budget: 64 MiB.
+```
+
+`ApplyFossil` and `ApplyASCII` accept the same parameter. With `using DeltaSharp;`, it is also available as `codec.Apply.Apply(source, patch.Data.Span, maxOutputLength: limit)` on an `IDelta` instance. The declared size is checked before output allocation; exceeding the limit throws `DeltaApplyException` with `Error == OutputLengthLimitExceeded`. Zero permits only empty output, and negative limits throw `ArgumentOutOfRangeException`. Existing overloads retain their behavior. The limit applies to each call's output buffer, not total process memory or concurrent calls. Output-length and checksum validation still run for patches within the limit.
+
+`GetOutputLength()` only reads the declared size; it does not validate the rest of the patch. The overload accepting `Memory<byte>` writes only the declared output range and returns a view of that memory. Overlapping source or patch data is copied internally before writing; failed applications may leave partially written output. Applying stops at the first valid checksum, so trailing bytes are not validated.
 
 ## Example: patch two copies of *Moby-Dick*
 
