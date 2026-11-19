@@ -4,7 +4,7 @@ DeltaSharp is a C# library for binary diff and patch. When two machines already 
 
 ## Install and apply a patch
 
-In a console project targeting .NET 9 or later, install [DeltaSharp from NuGet](https://www.nuget.org/packages/DeltaSharp/). Published version 1.0.8 contains the .NET 9 assembly. The source also targets .NET 8, 10, 11, and .NET Standard 2.0.
+DeltaSharp 1.0.9 includes assemblies for .NET 8, 9, 10, 11, and .NET Standard 2.0. To try it in a .NET 8 or later console project, install [DeltaSharp from NuGet](https://www.nuget.org/packages/DeltaSharp/):
 
 ```sh
 dotnet add package DeltaSharp
