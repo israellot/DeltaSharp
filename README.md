@@ -74,6 +74,24 @@ The round-trip benchmark creates and applies a patch after swapping two groups o
 | Fossil | 1048576 | 752.158 us | 7.3950 us | 6.5555 us | 1.7520 us |   1,329.5 |  1.00 |    0.01 | 332.0313 |     784 B | 332.0313 | 332.0313 | 1537.01 KB |        1.00 |
 | Binary | 1048576 | 756.173 us | 9.7535 us | 8.6463 us | 2.3108 us |   1,322.4 |  1.01 |    0.01 | 332.0313 |     784 B | 332.0313 | 332.0313 |    1537 KB |        1.00 |
 
+To run the hash-table comparisons, use the benchmark filter:
+
+```sh
+dotnet run -c Release --project src/Benchmarks/SharpFossilBenchmarks.csproj -- --filter '*Hashtable*'
+```
+
+Add `-p:Enable24BitHashtable=true` before `--` to include 24-bit comparisons.
+The runner forwards this flag to BenchmarkDotNet's generated build. Use
+`--list flat` after `--` to list benchmarks, or add `--job Dry` to the filter
+command for a smoke run rather than a performance measurement.
+
+Hash-table benchmarks measure construction, one lookup, and disposal with
+warmed pools. Small-input cases compare all enabled index widths using the
+same 512-, 1,024-, and 2,040-byte inputs; larger cases compare 32-bit and
+optional 24-bit storage from 512 KiB to 64 MiB. The `Allocated` column measures
+new allocations per operation, not memory retained in the pools. These cases
+do not measure sustained lookup throughput or collision-heavy searches.
+
 ## Build and test
 
 Use the .NET 11 SDK to build all five NuGet assemblies from the repository root:
