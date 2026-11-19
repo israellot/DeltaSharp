@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if DELTASHARP_HASHTABLE24
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
@@ -149,3 +150,4 @@ internal unsafe readonly ref struct Hashtable64_24
         ArrayPool<byte>.Shared.Return(_buffer);
     }
 }
+#endif

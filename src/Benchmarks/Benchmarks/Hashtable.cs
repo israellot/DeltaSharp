@@ -54,6 +54,7 @@ public class HashtableConstructionAddressSize
     }
 
 
+#if DELTASHARP_HASHTABLE24
     [Benchmark]
     public int Hashtable24()
     {
@@ -61,6 +62,7 @@ public class HashtableConstructionAddressSize
 
         return hashtable.Match(_2k.Span);
     }
+#endif
         
     [Benchmark]
     public int Hashtable32()
@@ -105,6 +107,7 @@ public class HashtableConstructionThroughtput
         return hashtable.Match(_10Mb.Span);
     }
 
+#if DELTASHARP_HASHTABLE24
     [Benchmark]
     public int Hashtable24()
     {
@@ -112,5 +115,6 @@ public class HashtableConstructionThroughtput
 
         return hashtable.Match(_10Mb.Span);
     }
+#endif
 
 }
