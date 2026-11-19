@@ -91,6 +91,19 @@ dotnet test src/UnitTests/SharpFossilUnitTests.csproj -c Release
 dotnet test src/UnitTests/SharpFossilUnitTests.csproj -c Release -f net8.0 -p:TestNetStandard=true
 ```
 
+The 24-bit hash table is excluded by default; inputs above the 16-bit table's
+limit use the 32-bit table. To include the 24-bit implementation and restore its
+size-based selection, build with:
+
+```sh
+dotnet build src/DeltaSharp/DeltaSharp.csproj -c Release -p:Enable24BitHashtable=true
+```
+
+`Enable24BitHashtable` defines the `DELTASHARP_HASHTABLE24` compile symbol across
+the library, tests, and benchmarks. Pass the same property to `dotnet test` or
+benchmark builds to include their 24-bit cases. This is a build-time option;
+it does not change an already-built NuGet assembly.
+
 ## Publishing to NuGet
 
 After merging a version bump to `main`, tag the release commit with `v` followed by the project version (for example, `v1.0.10`), then push that tag. The **Publish DeltaSharp** workflow checks the version, runs the tests, builds the package, and publishes it through the `nuget` GitHub environment. NuGet grants the workflow a short-lived credential scoped to new versions of DeltaSharp.

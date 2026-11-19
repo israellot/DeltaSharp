@@ -39,6 +39,7 @@ public class HashtableTests
 
     }
 
+#if DELTASHARP_HASHTABLE24
     [Fact]
     public void Hashtable24Match()
     {
@@ -46,7 +47,7 @@ public class HashtableTests
         Span<byte> data = new byte[ushort.MaxValue*8+1];
         random.NextBytes(data);
 
-        var hashtable = new Hashtable64_24(data);
+        using var hashtable = new Hashtable64_24(data);
 
         var matched = hashtable.Match(data.Slice(8));
 
@@ -54,6 +55,26 @@ public class HashtableTests
 
         Assert.Equal(8, matched);
 
+    }
+#endif
+
+    [Theory]
+    [InlineData(ushort.MaxValue * 8 - 1)]
+    [InlineData(ushort.MaxValue * 8)]
+    [InlineData(ushort.MaxValue * 8 + 1)]
+    [InlineData(1024 * 1024)]
+    public void RoundTripAcrossHashtableSizeBoundary(int length)
+    {
+        var source = new byte[length];
+        new Random(11).NextBytes(source);
+        var target = (byte[])source.Clone();
+        for (var i = 4096; i < target.Length; i += 4096)
+            target[i] ^= 0xff;
+
+        var patch = DeltaSharp.DeltaSharp.CreateBinary(source, target);
+        var restored = DeltaSharp.DeltaSharp.ApplyBinary(source, patch.Data.Span);
+
+        Assert.True(restored.Data.Span.SequenceEqual(target));
     }
 
     [Fact]

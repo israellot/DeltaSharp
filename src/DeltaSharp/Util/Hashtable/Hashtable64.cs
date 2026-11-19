@@ -18,7 +18,9 @@ internal readonly ref struct Hashtable64
 
     private readonly Hashtable64_8 _hashtable8;
     private readonly Hashtable64_16 _hashtable16;
+#if DELTASHARP_HASHTABLE24
     private readonly Hashtable64_24 _hashtable24;
+#endif
     private readonly Hashtable64_32 _hashtable32;
     private readonly byte _hashtable;
 
@@ -34,11 +36,13 @@ internal readonly ref struct Hashtable64
             _hashtable16 = new Hashtable64_16(data);
             _hashtable = 16;
         }
+#if DELTASHARP_HASHTABLE24
         else if (data.Length < 0xff_ff_ff * 8)
         {
             _hashtable24 = new Hashtable64_24(data);
             _hashtable = 24;
         }
+#endif
         else
         {
             _hashtable32 = new Hashtable64_32(data);
@@ -52,7 +56,9 @@ internal readonly ref struct Hashtable64
         {
             case 8: return _hashtable8.Match(data);
             case 16: return _hashtable16.Match(data);
+#if DELTASHARP_HASHTABLE24
             case 24: return _hashtable24.Match(data);
+#endif
             default: return _hashtable32.Match(data);
         }
     }
@@ -63,7 +69,9 @@ internal readonly ref struct Hashtable64
         {
             case 8: return _hashtable8.More(pos);
             case 16: return _hashtable16.More(pos);
+#if DELTASHARP_HASHTABLE24
             case 24: return _hashtable24.More(pos);
+#endif
             default: return _hashtable32.More(pos);
         }
     }
@@ -76,7 +84,9 @@ internal readonly ref struct Hashtable64
         {
             case 8: _hashtable8.Dispose(); break;
             case 16: _hashtable16.Dispose(); break;
+#if DELTASHARP_HASHTABLE24
             case 24: _hashtable24.Dispose(); break;
+#endif
             default: _hashtable32.Dispose(); break;
         }
     }
