@@ -10,7 +10,8 @@ namespace DeltaSharp.Util.Hashtable;
 /// Specialized hashtable to store landmarks and respective collisions
 /// Because we hash at every 8 bytes, we can store the address as multiple of 8
 /// To improve memory usage, there are specialized implementations according to data size
-/// For example, for a data size of 2048 bytes or less, we can use use a single byte to store the address and hash.
+/// Byte-sized indices can address 255 complete 8-byte blocks, including sources
+/// up to 2047 bytes long with a partial final block.
 /// </summary>
 internal readonly ref struct Hashtable64
 {
@@ -26,7 +27,8 @@ internal readonly ref struct Hashtable64
 
     public Hashtable64(ReadOnlySpan<byte> data)
     {
-        if (data.Length < byte.MaxValue * 4)
+        // Zero is the empty-slot sentinel; stored block indices are one-based.
+        if (data.Length / BlockSize <= byte.MaxValue)
         {
             _hashtable8 = new Hashtable64_8(data);
             _hashtable = 8;

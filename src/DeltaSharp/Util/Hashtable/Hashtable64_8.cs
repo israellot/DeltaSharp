@@ -11,8 +11,8 @@ using System.Threading.Tasks;
 namespace DeltaSharp.Util.Hashtable;
 
 /// <summary>
-/// Specialized hashtable to handle data of 2048 bytes or less in size
-/// The trick here is avoiding heap allocations and using a stack allocated fixed size buffer
+/// Stores up to 255 complete 8-byte blocks (source lengths through 2047 bytes).
+/// Uses inline buffers on modern targets and byte arrays on .NET Standard 2.0.
 /// </summary>
 internal readonly ref struct Hashtable64_8
 {
@@ -37,15 +37,12 @@ internal readonly ref struct Hashtable64_8
         var nInt = (int)data.Length / 8;
 
         if (nInt > byte.MaxValue)
-            throw new ArgumentException($"Max allowed size is {byte.MaxValue * 8}", nameof(data));
+            throw new ArgumentException($"Max allowed size is {(byte.MaxValue + 1) * 8 - 1}", nameof(data));
 
 #if !NETSTANDARD2_0
-        //No need to be smart here, the compiler will vectorize
-        for (var i = 0; i < 256; i++)
-        {
-            _collide[i] = 0;
-            _landmark[i] = 0;
-        }
+        // Clear whole inline buffers instead of writing each element in a loop.
+        _collide = default;
+        _landmark = default;
 #endif
                
         ReadOnlySpan<ulong> uintData = MemoryMarshal.Cast<byte, ulong>(data).Slice(0, nInt);
