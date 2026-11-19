@@ -35,7 +35,13 @@ Console.WriteLine(restored.Data.Span.SequenceEqual(target)); // True
 
 Apply a patch with the matching format and the original source bytes. Each format describes how to copy byte ranges from the source and insert new bytes. DeltaSharp checks the reconstructed output against the checksum in the patch.
 
+Fossil zero-length COPY commands are accepted as no-ops, matching the reference decoder. They do not copy through the end of the source. Source offsets, total output length, and checksums are still validated.
+
+`DeltaResult.Crc32` is the historical name for the Fossil additive checksum used by all three formats; it is not a CRC-32 or a cryptographic integrity check. Authenticate patches separately when their origin is untrusted.
+
 The API works in memory. Allow room for the source, target, and working buffers. The apply API limits the reconstructed output to `int.MaxValue` bytes, and available memory can impose a lower limit. Patch size depends on shared byte sequences. For unrelated inputs, a patch can exceed the size of the target.
+
+For untrusted patches, inspect `Delta.Binary.Apply.GetOutputLength(patch.Data.Span)` (or the matching format) and enforce an application-specific size limit before calling the allocating apply overload. The header declares a size; reading it does not validate the rest of the patch. The overload accepting `Memory<byte>` writes only the declared output range and returns a view of that memory. Overlapping source or patch data is copied internally before writing; failed applications may leave partially written output. Applying stops at the first valid checksum, so trailing bytes are not validated.
 
 ## Example: patch two copies of *Moby-Dick*
 

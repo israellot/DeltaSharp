@@ -37,7 +37,7 @@ public class DeltaApply<TReader, TChecksum> : IDeltaApply
         if (!_reader.TryRead(delta, out var cmd, out var consumed))
             throw new DeltaApplyException(DeltaApplyExceptionError.InvalidDelta);
 
-        if (cmd.Command != DeltaCommandEnum.Length)
+        if (cmd.Command != DeltaCommandEnum.Length || consumed == 0 || consumed > (uint)delta.Length)
             throw new DeltaApplyException(DeltaApplyExceptionError.InvalidDelta);
 
         return cmd.Length;
@@ -53,7 +53,14 @@ public class DeltaApply<TReader, TChecksum> : IDeltaApply
         if ((ulong)output.Length < outputLength)
             throw new DeltaApplyException(DeltaApplyExceptionError.OutputMemorySizeLessThanRequired);
 
-        var applyResult = Apply(source, delta, output.Span, out var checksum);
+        var destination = output.Span.Slice(0, (int)outputLength);
+        // Preserve unread input when the caller reuses either input buffer.
+        if (source.Overlaps(destination))
+            source = source.ToArray();
+        if (delta.Overlaps(destination))
+            delta = delta.ToArray();
+
+        var applyResult = Apply(source, delta, destination, out var checksum);
 
         return new DeltaResult()
         {
@@ -88,15 +95,25 @@ public class DeltaApply<TReader, TChecksum> : IDeltaApply
     {
         var outputSpan = outputBuffer;
         var writeSpan = outputSpan;
+        var hasLength = false;
 
         while (_reader.TryRead(delta, out var cmd, out var consumed))
         {
+            if (consumed == 0 || consumed > (uint)delta.Length ||
+                (!hasLength && cmd.Command != DeltaCommandEnum.Length))
+                throw new DeltaApplyException(DeltaApplyExceptionError.InvalidDelta);
+
             switch (cmd.Command)
             {
                 case DeltaCommandEnum.Length:
                     {
-                        if (outputBuffer.Length < (int)cmd.Length)
-                            throw new DeltaApplyException(DeltaApplyExceptionError.OutputMemorySizeLessThanRequired);
+                        if (hasLength)
+                            throw new DeltaApplyException(DeltaApplyExceptionError.InvalidDelta);
+
+                        if (cmd.Length != (ulong)outputBuffer.Length)
+                            throw new DeltaApplyException(DeltaApplyExceptionError.InvalidOutputLength);
+
+                        hasLength = true;
 
                         writeSpan = writeSpan.Slice(0, (int)cmd.Length);
                         outputSpan = writeSpan;
@@ -154,6 +171,11 @@ public class DeltaApply<TReader, TChecksum> : IDeltaApply
                     }
                 case DeltaCommandEnum.Checksum:
                     {
+                        // Every output byte must come from a copy or insert command.
+                        // A checksum of existing/uninitialized buffer contents is not enough.
+                        if (!writeSpan.IsEmpty)
+                            throw new DeltaApplyException(DeltaApplyExceptionError.InvalidOutputLength);
+
                         delta = delta.Slice((int)consumed);
 
                         var deltaChecksum = cmd.Length;
@@ -168,6 +190,8 @@ public class DeltaApply<TReader, TChecksum> : IDeltaApply
                         return outputSpan;
 
                     }
+                default:
+                    throw new DeltaApplyException(DeltaApplyExceptionError.InvalidDelta);
             }
         }
 

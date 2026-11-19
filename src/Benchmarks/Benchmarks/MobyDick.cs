@@ -39,8 +39,8 @@ public class MobyDick
         _writerBinary = new DeltaCreate<BinaryDeltaWriter, DeltaChecksum>();
         _readerBinary = new DeltaApply<BinaryDeltaReader, DeltaChecksum>();
 
-        Source = File.ReadAllBytes("Data/pg15.txt");
-        Target = File.ReadAllBytes("Data/pg2701.txt");
+        Source = File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "Data", "pg15.txt"));
+        Target = File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "Data", "pg2701.txt"));
     }
 
 
@@ -58,8 +58,6 @@ public class MobyDick
     public ulong DeltaRoundtrip()
     {
         var delta = _writerBinary.Create(Source, Target);
-
-        File.WriteAllBytes("Data/delta.txt", delta.Data.ToArray());
 
         var result = _readerBinary.Apply(Source, delta.Data.Span);
 

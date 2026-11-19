@@ -20,6 +20,8 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
     where TChecksum : IDeltaChecksum,new()
 {
     private const int MinEvaluateLength = 16;
+    private static readonly System.Reflection.ConstructorInfo? SizeHintConstructor =
+        typeof(TWriter).GetConstructor(new[] { typeof(int) });
 
 
     TChecksum _checksum;
@@ -36,18 +38,19 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
 
     public DeltaResult Create(ReadOnlySpan<byte> origin, ReadOnlySpan<byte> target)
     {
-        using var writer = (TWriter)(Activator.CreateInstance(typeof(TWriter), origin.Length / 2) ?? new TWriter());
+        using var writer = SizeHintConstructor is null
+            ? new TWriter()
+            : (TWriter)SizeHintConstructor.Invoke(new object[] { Math.Min(origin.Length / 2, target.Length) });
 
         writer.WriteLength((ulong)target.Length);
 
         var checksum = _checksum.Checksum(target);
 
-        // If the source is very small, it means that we have no
-        // chance of ever doing a copy command.  Just output a single
-        // literal segment for the entire target and exit.
+        // Small targets are inexpensive to encode as a single literal.
         if (target.Length <= MinEvaluateLength)
         {
-            writer.WriteInsert(target);
+            if (!target.IsEmpty)
+                writer.WriteInsert(target);
             writer.WriteChecksum(checksum);
 
             return new DeltaResult()
@@ -62,7 +65,6 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
         using var hashtable = new Hashtable64(origin);
         var blockSize = hashtable.BlockSize;
 
-        var written = ReadOnlySpan<byte>.Empty;
         var unmatched = ReadOnlySpan<byte>.Empty;
         var unwritten = target;
         var next = target;
@@ -120,7 +122,6 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
                 writer.WriteCopy((ulong)bestMatchStart, (ulong)bestMatchLength);
 
                 unwritten = unwritten.Slice(insertLength + bestMatchLength);
-                written = written = target.Slice(0, target.Length - unwritten.Length);
                 
                 next = unwritten;
                 unmatched = ReadOnlySpan<byte>.Empty;
@@ -151,6 +152,7 @@ public class DeltaResult
 {
     public ReadOnlyMemory<byte> Data { get; set; }
 
+    /// <summary>The Fossil additive checksum, retained under its historical name; not a CRC-32.</summary>
     public uint Crc32 { get; set; }
 
 }
@@ -162,7 +164,7 @@ public class DeltaCreateException : Exception
 
     public DeltaCreateException(DeltaCreateExceptionError error)
     {
-         
+        Error = error;
     }
 
     public enum DeltaCreateExceptionError
