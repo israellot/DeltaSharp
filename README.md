@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/israellot/DeltaSharp/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/israellot/DeltaSharp/actions/workflows/ci.yml?query=branch%3Amain+event%3Apush)
 [![NuGet version](https://img.shields.io/nuget/v/DeltaSharp)](https://www.nuget.org/packages/DeltaSharp/)
+[![Line coverage](https://israellot.github.io/DeltaSharp/badge_shieldsio_linecoverage_blue.svg)](https://israellot.github.io/DeltaSharp/)
 
 DeltaSharp is a C# library for binary diff and patch. When two machines already have the same base file, the sender can transmit a patch and the receiver can use it to reconstruct the updated file byte for byte.
 
@@ -28,7 +29,7 @@ var restored = Delta.ApplyBinary(source, patch.Data.Span);
 Console.WriteLine(restored.Data.Span.SequenceEqual(target)); // True
 ```
 
-See the [benchmarks](#performance) for patch sizes and timings.
+See the [Moby-Dick example](#example-patch-two-copies-of-moby-dick) for patch size and the [benchmarks](#performance) for timings and allocations.
 
 ## Choosing a patch format
 

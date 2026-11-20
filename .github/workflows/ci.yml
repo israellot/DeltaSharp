@@ -48,30 +48,25 @@ jobs:
         run: >-
           dotnet test src/UnitTests/SharpFossilUnitTests.csproj -c Release -f net8.0 -p:TestNetStandard=true -p:Enable24BitHashtable=true --no-restore
           --settings src/UnitTests/coverage.runsettings --results-directory coverage
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - name: Merge coverage reports and generate the badge
+        run: |
+          dotnet tool install dotnet-reportgenerator-globaltool --version 5.6.0 --tool-path "$RUNNER_TEMP/tools"
+          "$RUNNER_TEMP/tools/reportgenerator" '-reports:coverage/**/coverage.cobertura.xml' '-targetdir:coverage-site' '-reporttypes:Html;Badges'
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         with:
-          name: library-coverage
-          path: coverage/**/coverage.cobertura.xml
-          if-no-files-found: error
+          path: coverage-site
 
   publish-coverage:
     name: Publish coverage
     needs: build-and-test
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      pages: write
       id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: library-coverage
-          path: coverage
-      - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
-        with:
-          directory: coverage
-          use_oidc: true
-          fail_ci_if_error: true
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
