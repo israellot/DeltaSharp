@@ -18,6 +18,9 @@ namespace DeltaSharp.Util.Hashtable;
 /// and runtime array-size limits.
 /// </summary>
 internal unsafe readonly ref struct Hashtable64_32
+#if NET9_0_OR_GREATER
+    : IHashtable
+#endif
 {
 
     private readonly ReadOnlySpan<int> _collide;

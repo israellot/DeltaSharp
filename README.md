@@ -4,14 +4,14 @@
 [![NuGet version](https://img.shields.io/nuget/v/DeltaSharp)](https://www.nuget.org/packages/DeltaSharp/)
 [![Line coverage](https://israellot.github.io/DeltaSharp/badge_shieldsio_linecoverage_blue.svg)](https://israellot.github.io/DeltaSharp/)
 
-DeltaSharp is a C# library for binary diff and patch. When two machines already have the same base file, the sender can transmit a patch and the receiver can use it to reconstruct the updated file byte for byte.
+DeltaSharp is a binary diff and patch library for .NET. Create a patch from two versions of a file and send it to anyone who already has the original. Applying the patch reconstructs the updated file byte for byte. DeltaSharp supports native Binary patches, Fossil-compatible deltas, and an ASCII format with readable commands.
 
 ## Install and apply a patch
 
-DeltaSharp 1.0.10 includes assemblies for .NET 8, 9, 10, 11, and .NET Standard 2.0. To try it in a .NET 8 or later console project, install [DeltaSharp from NuGet](https://www.nuget.org/packages/DeltaSharp/):
+DeltaSharp 1.0.10 includes assemblies for .NET 8, 9, 10, 11, and .NET Standard 2.0. To try it in a .NET 11 console project, install [DeltaSharp from NuGet](https://www.nuget.org/packages/DeltaSharp/).
 
 ```sh
-dotnet add package DeltaSharp
+dotnet package add DeltaSharp
 ```
 
 Replace `Program.cs` with this example and run `dotnet run`:
@@ -31,6 +31,28 @@ Console.WriteLine(restored.Data.Span.SequenceEqual(target)); // True
 
 See the [Moby-Dick example](#example-patch-two-copies-of-moby-dick) for patch size and the [benchmarks](#performance) for timings and allocations.
 
+## Performance
+
+On .NET 11 running on an Apple M3 Max, DeltaSharp created a **46,294-byte Binary patch** between the two bundled editions of *Moby-Dick* in **0.888 ms**. The patch was **3.69%** of the 1,253,974-byte target. Reconstructing the book took **0.250 ms** with a new output array or **0.177 ms** when reusing a destination.
+
+| Input | Format | Patch bytes | Create (ms) | Apply (ms) | Apply into reused buffer (ms) |
+| --- | --- | ---: | ---: | ---: | ---: |
+| *Moby-Dick* editions | Binary | 46,294 | 0.888 | 0.250 | 0.177 |
+| *Moby-Dick* editions | Fossil | 50,532 | 0.764 | 0.222 | 0.162 |
+| *Moby-Dick* editions | ASCII | 83,692 | 0.987 | 0.243 | 0.183 |
+| 1 MiB, one byte changed every 4 KiB | Binary | 2,808 | 0.278 | 0.145 | 0.100 |
+| 1 MiB, unrelated source and target | Binary | 1,048,592 | 15.593 | 0.129 | 0.090 |
+
+With 256 scattered edits, the Binary patch was 0.27% of the target. With unrelated bytes, the patch was 16 bytes larger than the target.
+
+Mean times measured November 20, 2026 with BenchmarkDotNet 0.16.0-preview.2 on macOS 27.0.1, .NET 11.0.0 Arm64, and SDK 11.0.100. Create uses exhaustive search. Both apply timings include checksum verification and use a prebuilt patch. Input preparation and file I/O take place outside timing. [Full results, including allocations and uncertainty](src/Benchmarks/Results/PatchOperations-Integrated-2026-11-20.md).
+
+With the .NET 11 SDK installed, run this command from the repository root to reproduce the measurements.
+
+```sh
+dotnet run -c Release --project src/Benchmarks/SharpFossilBenchmarks.csproj -- --filter '*PatchOperations*' --launchCount 1 --warmupCount 6 --iterationCount 12 --iterationTime 350
+```
+
 ## Choosing a patch format
 
 | Format | When to use it | Create / apply |
@@ -47,6 +69,8 @@ Fossil zero-length COPY commands are accepted as no-ops, matching the reference 
 
 The API works in memory. Allow room for the source, target, and working buffers. The apply API limits the reconstructed output to `int.MaxValue` bytes, and available memory can impose a lower limit. Patch size depends on shared byte sequences. For unrelated inputs, a patch can exceed the size of the target.
 
+The built-in writers start with at most 4 KiB of patch storage and grow as needed. When a large literal determines the next buffer size, they reserve room for the format's checksum. This avoids a second full-buffer allocation just to finish the patch. Returned patches own their backing storage and can be kept across subsequent calls.
+
 For untrusted patches, pass an application-specific output-size limit in bytes:
 
 ```csharp
@@ -57,6 +81,26 @@ var restored = Delta.ApplyBinary(source, patch.Data.Span,
 `ApplyFossil` and `ApplyASCII` accept the same parameter. With `using DeltaSharp;`, it is also available as `codec.Apply.Apply(source, patch.Data.Span, maxOutputLength: limit)` on an `IDelta` instance. The declared size is checked before output allocation; exceeding the limit throws `DeltaApplyException` with `Error == OutputLengthLimitExceeded`. Zero permits only empty output, and negative limits throw `ArgumentOutOfRangeException`. Existing overloads retain their behavior. The limit applies to each call's output buffer, not total process memory or concurrent calls. Output-length and checksum validation still run for patches within the limit.
 
 `GetOutputLength()` only reads the declared size; it does not validate the rest of the patch. The overload accepting `Memory<byte>` writes only the declared output range and returns a view of that memory. Overlapping source or patch data is copied internally before writing; failed applications may leave partially written output. Applying stops at the first valid checksum, so trailing bytes are not validated.
+
+## Reuse the output buffer
+
+When applying several patches, allocate one destination large enough for the largest target you accept. In this checkout, `ApplyBinaryInto`, `ApplyFossilInto`, and `ApplyASCIIInto` write into that destination and return the written prefix with its verified checksum. This example writes successive target files to a stream. Each patch uses the same original source.
+
+```csharp
+using Delta = DeltaSharp.DeltaSharp;
+
+static void WriteTargets(byte[] source, IEnumerable<ReadOnlyMemory<byte>> patches,
+    Stream output, byte[] destination)
+{
+    foreach (var patch in patches)
+    {
+        var restored = Delta.ApplyBinaryInto(source, patch.Span, destination);
+        output.Write(restored.Data.Span);
+    }
+}
+```
+
+Consume each result before reusing the destination. Copy `restored.Data` if you need to keep an independent result. Use separate buffers for simultaneous calls. An undersized destination throws `DeltaApplyException` with `OutputMemorySizeLessThanRequired` before writing. A destination that overlaps the source or patch can require an internal copy. In NuGet 1.0.10, the same operation is available as `Delta.Binary.Apply.Apply(source, patch.Span, destination)`.
 
 ## Choosing search effort
 
@@ -82,6 +126,8 @@ creators support `new DeltaCreate<TWriter, TChecksum>(checksum, searchMode)` and
 a per-call `Create(source, target, searchMode)` override. Modes are not global
 settings; selecting one for a call does not change another call's mode.
 
+On .NET 9–11, the encoder chooses the hash-table index width once per patch and runs a generic search loop specialized for that table. .NET 8 and .NET Standard 2.0 use the same search loop with the portable table wrapper. All targets preserve candidate order and search-mode limits.
+
 ## Example: patch two copies of *Moby-Dick*
 
 The repository includes two Project Gutenberg texts in [the benchmark data directory](https://github.com/israellot/DeltaSharp/tree/main/src/Benchmarks/Data). To try them, use the following `Program.cs` in the same console project. Pass the data directory as the argument to `dotnet run -- /path/to/DeltaSharp/src/Benchmarks/Data`.
@@ -102,22 +148,12 @@ Console.WriteLine($"Restored byte for byte: {restored.Data.Span.SequenceEqual(ta
 
 With the files in this repository, the 1,253,974-byte target produces a 46,294-byte Binary patch (about 3.7% of the target size).
 
-## Performance
+## Benchmark tools and experiments
 
-The round-trip benchmark creates and applies a patch after swapping two groups of four lines in generated text. The historical measurements below used BenchmarkDotNet 0.14.0 on Windows 11, an Intel Core i7-10875H, and .NET 8.0.8 with AVX2. The timings cover both operations together. To measure your machine, run `dotnet run -c Release --project src/Benchmarks/SharpFossilBenchmarks.csproj` from the repository root.
+For measurements of patch writer capacity, forward matching, hash-table dispatch, and caller-owned output buffers, see the [patch performance investigation](src/Benchmarks/Results/PatchPerformance-2026-11-20.md).
 
-| Method | Bytes   | Mean       | Error     | StdDev    | StdErr    | Op/s      | Ratio | RatioSD | Gen0     | Code Size | Gen1     | Gen2     | Allocated  | Alloc Ratio |
-|------- |-------- |-----------:|----------:|----------:|----------:|----------:|------:|--------:|---------:|----------:|---------:|---------:|-----------:|------------:|
-| Fossil | 1024    |   1.201 us | 0.0220 us | 0.0195 us | 0.0052 us | 832,420.7 |  1.00 |    0.02 |   0.3166 |     759 B |   0.0019 |        - |    2.59 KB |        1.00 |
-| Binary | 1024    |   1.111 us | 0.0114 us | 0.0095 us | 0.0026 us | 899,922.4 |  0.93 |    0.02 |   0.3147 |     759 B |        - |        - |    2.59 KB |        1.00 |
-| Fossil | 8192    |   4.857 us | 0.0944 us | 0.1927 us | 0.0270 us | 205,902.4 |  1.00 |    0.05 |   2.0294 |     784 B |   0.0610 |        - |   16.59 KB |        1.00 |
-| Binary | 8192    |   4.764 us | 0.0766 us | 0.0679 us | 0.0182 us | 209,908.9 |  0.98 |    0.04 |   2.0294 |     784 B |   0.0534 |        - |   16.59 KB |        1.00 |
-| Fossil | 32768   |  16.785 us | 0.2164 us | 0.1918 us | 0.0513 us |  59,577.9 |  1.00 |    0.02 |   7.9041 |     784 B |   1.0986 |        - |    64.6 KB |        1.00 |
-| Binary | 32768   |  16.872 us | 0.3259 us | 0.2889 us | 0.0772 us |  59,269.2 |  1.01 |    0.02 |   7.9041 |     784 B |   1.0986 |        - |   64.59 KB |        1.00 |
-| Fossil | 131072  | 107.346 us | 1.4605 us | 1.2947 us | 0.3460 us |   9,315.7 |  1.00 |    0.02 |  41.6260 |     784 B |  41.6260 |  41.6260 |  192.66 KB |        1.00 |
-| Binary | 131072  | 106.508 us | 1.5649 us | 1.4638 us | 0.3780 us |   9,389.0 |  0.99 |    0.02 |  41.6260 |     784 B |  41.6260 |  41.6260 |  192.65 KB |        1.00 |
-| Fossil | 1048576 | 752.158 us | 7.3950 us | 6.5555 us | 1.7520 us |   1,329.5 |  1.00 |    0.01 | 332.0313 |     784 B | 332.0313 | 332.0313 | 1537.01 KB |        1.00 |
-| Binary | 1048576 | 756.173 us | 9.7535 us | 8.6463 us | 2.3108 us |   1,322.4 |  1.01 |    0.01 | 332.0313 |     784 B | 332.0313 | 332.0313 |    1537 KB |        1.00 |
+<details>
+<summary>Hash tables and search modes</summary>
 
 To run the hash-table comparisons, use the benchmark filter:
 
@@ -141,6 +177,8 @@ do not measure sustained lookup throughput or collision-heavy searches.
 Use `--filter '*DeltaSearch*'` to compare full patch creation in both search
 modes. These benchmarks include repetitive changes and a useful match beyond
 candidate 256, demonstrating both the speed benefit and the larger-patch case.
+
+</details>
 
 ## Build and test
 

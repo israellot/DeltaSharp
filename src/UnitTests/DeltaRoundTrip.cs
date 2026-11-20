@@ -80,7 +80,13 @@ public class DeltaRoundTripTests
         var apply = AuditRegressionTests.Format(format).Apply;
         Assert.Equal((ulong)target.Length, apply.GetOutputLength(patch.Data.Span));
         var buffer = Enumerable.Repeat((byte)0xa5, target.Length + 10).ToArray();
-        var result = apply.Apply(source, patch.Data.Span, buffer.AsMemory(3, target.Length + 4));
+        var output = buffer.AsMemory(3, target.Length + 4);
+        var result = format switch
+        {
+            "Binary" => DeltaSharp.DeltaSharp.ApplyBinaryInto(source, patch.Data.Span, output),
+            "ASCII" => DeltaSharp.DeltaSharp.ApplyASCIIInto(source, patch.Data.Span, output),
+            _ => DeltaSharp.DeltaSharp.ApplyFossilInto(source, patch.Data.Span, output)
+        };
         Assert.Equal(target, result.Data.ToArray());
         Assert.Equal(patch.Crc32, result.Crc32);
         Assert.All(buffer.Take(3).Concat(buffer.Skip(target.Length + 3)), b => Assert.Equal(0xa5, b));

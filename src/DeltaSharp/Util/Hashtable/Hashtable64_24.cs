@@ -19,6 +19,9 @@ namespace DeltaSharp.Util.Hashtable;
 /// so neighboring entries remain unchanged.
 /// </summary>
 internal unsafe readonly ref struct Hashtable64_24
+#if NET9_0_OR_GREATER
+    : IHashtable
+#endif
 {
 
     private readonly ReadOnlySpan<byte> _collide;

@@ -193,6 +193,10 @@ public static class DeltaSharp
         return Binary.Apply.Apply(source, delta);
     }
 
+    /// <inheritdoc cref="IDeltaApply.Apply(ReadOnlySpan{byte}, ReadOnlySpan{byte}, Memory{byte})"/>
+    public static DeltaResult ApplyBinaryInto(ReadOnlySpan<byte> source, ReadOnlySpan<byte> delta, Memory<byte> output)
+        => Binary.Apply.Apply(source, delta, output);
+
     /// <summary>Applies a binary patch with an output-size limit checked before allocation.</summary>
     /// <param name="source">The original source bytes against which the patch was created.</param>
     /// <param name="delta">The binary patch to apply.</param>
@@ -217,6 +221,10 @@ public static class DeltaSharp
         return Fossil.Apply.Apply(source, delta);
     }
 
+    /// <inheritdoc cref="IDeltaApply.Apply(ReadOnlySpan{byte}, ReadOnlySpan{byte}, Memory{byte})"/>
+    public static DeltaResult ApplyFossilInto(ReadOnlySpan<byte> source, ReadOnlySpan<byte> delta, Memory<byte> output)
+        => Fossil.Apply.Apply(source, delta, output);
+
     /// <summary>Applies a Fossil patch with an output-size limit checked before allocation.</summary>
     /// <param name="source">The original source bytes against which the patch was created.</param>
     /// <param name="delta">The Fossil patch to apply.</param>
@@ -240,6 +248,10 @@ public static class DeltaSharp
     {
         return ASCII.Apply.Apply(source, delta);
     }
+
+    /// <inheritdoc cref="IDeltaApply.Apply(ReadOnlySpan{byte}, ReadOnlySpan{byte}, Memory{byte})"/>
+    public static DeltaResult ApplyASCIIInto(ReadOnlySpan<byte> source, ReadOnlySpan<byte> delta, Memory<byte> output)
+        => ASCII.Apply.Apply(source, delta, output);
 
     /// <summary>Applies an ASCII patch with an output-size limit checked before allocation.</summary>
     /// <param name="source">The original source bytes against which the patch was created.</param>

@@ -18,6 +18,23 @@ public class HashtableTests
 
     
 
+    [Theory]
+    [InlineData(2047, 8)]
+    [InlineData(2048, 16)]
+    [InlineData(ushort.MaxValue * 8 - 1, 16)]
+#if DELTASHARP_HASHTABLE24
+    [InlineData(ushort.MaxValue * 8, 24)]
+    [InlineData(0xff_ff_ff * 8 - 1, 24)]
+#else
+    [InlineData(ushort.MaxValue * 8, 32)]
+    [InlineData(0xff_ff_ff * 8 - 1, 32)]
+#endif
+    [InlineData(0xff_ff_ff * 8, 32)]
+    public void SelectsExpectedIndexWidth(int sourceLength, int bits)
+    {
+        Assert.Equal(bits, (int)Hashtable64.GetIndexWidth(sourceLength));
+    }
+
     [Fact]
     public void Hashtable32Match()
     {

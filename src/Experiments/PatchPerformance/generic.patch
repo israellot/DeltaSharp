@@ -1,0 +1,74 @@
+--- a/DeltaCreate.cs
++++ b/DeltaCreate.cs
+@@ -112,9 +112,26 @@
+         }
+ 
+         // Compute the hash table used to locate matching sections in the source.
+-        using var hashtable = new Hashtable64(origin);
+-        var blockSize = hashtable.BlockSize;
++        if (origin.Length / 8 <= byte.MaxValue)
++        {
++            using var table = new Hashtable64_8(origin);
++            return Encode(table, origin, target, maxCandidatesPerPosition, writer, checksum);
++        }
++        if (origin.Length < ushort.MaxValue * 8)
++        {
++            using var table = new Hashtable64_16(origin);
++            return Encode(table, origin, target, maxCandidatesPerPosition, writer, checksum);
++        }
++        using var wide = new Hashtable64_32(origin);
++        return Encode(wide, origin, target, maxCandidatesPerPosition, writer, checksum);
++    }
+ 
++    private static DeltaResult Encode<TTable>(TTable hashtable, ReadOnlySpan<byte> origin,
++        ReadOnlySpan<byte> target, int maxCandidatesPerPosition, TWriter writer, uint checksum)
++        where TTable : IProbeTable, allows ref struct
++    {
++        const int blockSize = 8;
++
+         var unmatched = ReadOnlySpan<byte>.Empty;
+         var unwritten = target;
+         var next = target;
+--- a/Util/Hashtable/Hashtable64_8.cs
++++ b/Util/Hashtable/Hashtable64_8.cs
+@@ -14,7 +14,7 @@
+ /// Stores up to 255 complete 8-byte blocks (source lengths through 2047 bytes).
+ /// Uses inline buffers on modern targets and byte arrays on .NET Standard 2.0.
+ /// </summary>
+-internal readonly ref struct Hashtable64_8
++internal readonly ref struct Hashtable64_8 : IProbeTable
+ {
+ #if NETSTANDARD2_0
+     private readonly byte[] _collide = new byte[256];
+--- a/Util/Hashtable/Hashtable64_16.cs
++++ b/Util/Hashtable/Hashtable64_16.cs
+@@ -16,7 +16,7 @@
+ /// using 16-bit, one-based block indices. Uses a managed array for smaller tables
+ /// and rents an array from the shared pool for larger tables.
+ /// </summary>
+-internal readonly ref struct Hashtable64_16
++internal readonly ref struct Hashtable64_16 : IProbeTable
+ {
+ 
+     private readonly ReadOnlySpan<ushort> _collide;
+--- a/Util/Hashtable/Hashtable64_32.cs
++++ b/Util/Hashtable/Hashtable64_32.cs
+@@ -17,7 +17,7 @@
+ /// 8-byte blocks in an int-sized source span; allocation remains subject to available memory
+ /// and runtime array-size limits.
+ /// </summary>
+-internal unsafe readonly ref struct Hashtable64_32
++internal unsafe readonly ref struct Hashtable64_32 : IProbeTable
+ {
+ 
+     private readonly ReadOnlySpan<int> _collide;
+--- /dev/null
++++ b/Util/Hashtable/IProbeTable.cs
+@@ -0,0 +1,7 @@
++namespace DeltaSharp.Util.Hashtable;
++
++internal interface IProbeTable
++{
++    int Match(ReadOnlySpan<byte> data);
++    int More(int pos);
++}

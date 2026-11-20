@@ -17,6 +17,9 @@ namespace DeltaSharp.Util.Hashtable;
 /// and rents an array from the shared pool for larger tables.
 /// </summary>
 internal readonly ref struct Hashtable64_16
+#if NET9_0_OR_GREATER
+    : IHashtable
+#endif
 {
 
     private readonly ReadOnlySpan<ushort> _collide;

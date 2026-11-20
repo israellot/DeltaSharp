@@ -17,7 +17,7 @@ internal class BinaryDeltaWriter : IDeltaWriter
 
     public BinaryDeltaWriter(int sizeHint)
     {
-        _ms = new MemoryStream(sizeHint);
+        _ms = DeltaWriterBuffer.Create(sizeHint);
     }
 
     public void WriteLength(ulong length)
@@ -54,7 +54,7 @@ internal class BinaryDeltaWriter : IDeltaWriter
         _ms.Write(encoded.Slice(0, written));
 
         //write insert data
-        _ms.Write(s);
+        DeltaWriterBuffer.WriteLiteral(_ms, s, trailerBytes: 10); // checksum opcode and varint
     }
 
     public void WriteChecksum(uint checksum)

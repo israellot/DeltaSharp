@@ -1,0 +1,18 @@
+--- a/Format/Binary/BinaryDeltaWriter.cs
++++ b/Format/Binary/BinaryDeltaWriter.cs
+@@ -54,6 +54,15 @@
+         _ms.Write(encoded.Slice(0, written));
+ 
+         //write insert data
++        // Leave room for one command byte and the maximum encoded integer.
++        // Preserve the stream's normal doubling policy for smaller writes.
++        const int trailerCapacity = 10;
++        if (s.Length >= 4096)
++        {
++            long endOfInsert = _ms.Position + s.Length;
++            if (endOfInsert >= 2L * _ms.Capacity && endOfInsert <= Array.MaxLength - trailerCapacity)
++                _ms.Capacity = (int)endOfInsert + trailerCapacity;
++        }
+         _ms.Write(s);
+     }
+ 
