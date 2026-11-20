@@ -1,0 +1,52 @@
+name: x64 CommonPrefixLength benchmark
+on:
+  push:
+    branches: [codex/x64-prefix-benchmark-20261120]
+    paths:
+      - '.github/workflows/x64-prefix-benchmark.yml'
+      - 'src/Experiments/UpstreamCommonPrefixLength/**'
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    name: Paired x64 comparison ${{ matrix.replica }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: [1, 2]
+    env:
+      REPLICA: ${{ matrix.replica }}
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+      BASE_SHA: 3d10ab44c1e907e5654f9100442112c41be4cd54
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          dotnet-version: '11.0.100'
+      - name: Record hardware and install runtime build dependencies
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/reports"
+          { uname -a; lscpu; df -h /; } | tee "$RUNNER_TEMP/reports/machine.txt"
+          test "$(uname -m)" = x86_64
+          sudo apt-get update -q
+          sudo apt-get install -y --no-install-recommends clang llvm lld cmake ninja-build build-essential libicu-dev liblttng-ust-dev libssl-dev libkrb5-dev python-is-python3 pigz cpio libunwind-dev libnuma-dev
+      - name: Build stock and patched CoreLib
+        run: bash src/Experiments/UpstreamCommonPrefixLength/build-x64.sh
+      - name: Verify and benchmark both layouts
+        run: bash src/Experiments/UpstreamCommonPrefixLength/measure-x64.sh
+      - name: Upload measurements and diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: prefix-x64-${{ matrix.replica }}
+          path: ${{ runner.temp }}/reports
+          if-no-files-found: error
+          retention-days: 14
