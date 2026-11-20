@@ -8,7 +8,7 @@ DeltaSharp is a binary diff and patch library for .NET. Create a patch from two 
 
 ## Install and apply a patch
 
-DeltaSharp 1.0.10 includes assemblies for .NET 8, 9, 10, 11, and .NET Standard 2.0. To try it in a .NET 11 console project, install [DeltaSharp from NuGet](https://www.nuget.org/packages/DeltaSharp/).
+DeltaSharp 1.1.0 includes assemblies for .NET 8, 9, 10, 11, and .NET Standard 2.0. To try it in a .NET 11 console project, install [DeltaSharp from NuGet](https://www.nuget.org/packages/DeltaSharp/).
 
 ```sh
 dotnet package add DeltaSharp
@@ -84,7 +84,7 @@ var restored = Delta.ApplyBinary(source, patch.Data.Span,
 
 ## Reuse the output buffer
 
-When applying several patches, allocate one destination large enough for the largest target you accept. In this checkout, `ApplyBinaryInto`, `ApplyFossilInto`, and `ApplyASCIIInto` write into that destination and return the written prefix with its verified checksum. This example writes successive target files to a stream. Each patch uses the same original source.
+When applying several patches, allocate one destination large enough for the largest target you accept. Starting with DeltaSharp 1.1.0, `ApplyBinaryInto`, `ApplyFossilInto`, and `ApplyASCIIInto` write into that destination and return the written prefix with its verified checksum. This example writes successive target files to a stream. Each patch uses the same original source.
 
 ```csharp
 using Delta = DeltaSharp.DeltaSharp;
@@ -212,6 +212,6 @@ it does not change an already-built NuGet assembly.
 
 ## Publishing to NuGet
 
-After merging a version bump to `main`, tag the release commit with `v` followed by the project version (for example, `v1.0.10`), then push that tag. The **Publish DeltaSharp** workflow checks the version, runs the tests, builds the package, and publishes it through the `nuget` GitHub environment. NuGet grants the workflow a short-lived credential scoped to new versions of DeltaSharp.
+After merging a version bump to `main`, tag the release commit with `v` followed by the project version (for example, `v1.1.0`), then push that tag. The **Publish DeltaSharp** workflow checks the version, runs the tests, builds the package, and publishes it through the `nuget` GitHub environment. NuGet grants the workflow a short-lived credential scoped to new versions of DeltaSharp.
 
 To check the build and NuGet authentication without publishing, select **Actions → Publish DeltaSharp → Run workflow** on `main`.
