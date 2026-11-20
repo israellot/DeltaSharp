@@ -1,0 +1,15 @@
+--- a/DeltaCreate.cs
++++ b/DeltaCreate.cs
+@@ -113,6 +113,12 @@
+ 
+         // Compute the hash table used to locate matching sections in the source.
+         using var hashtable = new Hashtable64(origin);
++        return Encode(hashtable, origin, target, maxCandidatesPerPosition, writer, checksum);
++    }
++
++    private static DeltaResult Encode(Hashtable64 hashtable, ReadOnlySpan<byte> origin,
++        ReadOnlySpan<byte> target, int maxCandidatesPerPosition, TWriter writer, uint checksum)
++    {
+         var blockSize = hashtable.BlockSize;
+ 
+         var unmatched = ReadOnlySpan<byte>.Empty;

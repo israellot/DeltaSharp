@@ -16,7 +16,7 @@ internal class ASCIIDeltaWriter : IDeltaWriter
 
     public ASCIIDeltaWriter(int sizeHint)
     {
-        _ms = new MemoryStream(sizeHint);
+        _ms = DeltaWriterBuffer.Create(sizeHint);
     }
 
     public void WriteLength(ulong length)
@@ -68,7 +68,7 @@ internal class ASCIIDeltaWriter : IDeltaWriter
         _ms.Write(" "u8);
 
         //write insert data
-        _ms.Write(s);
+        DeltaWriterBuffer.WriteLiteral(_ms, s, trailerBytes: 13); // insert newline, "v ", and up to ten decimal digits
 
         //write line ending
         _ms.Write("\n"u8);

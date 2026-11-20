@@ -26,7 +26,7 @@ internal class FossilDeltaWriter : IDeltaWriter
 
     public FossilDeltaWriter(int sizeHint)
     {
-        _ms = new MemoryStream(sizeHint);
+        _ms = DeltaWriterBuffer.Create(sizeHint);
     }
 
     private unsafe void WriteInt(ulong v)
@@ -88,7 +88,7 @@ internal class FossilDeltaWriter : IDeltaWriter
         _ms.WriteByte((byte)':');
 
         //write data
-        _ms.Write(s);
+        DeltaWriterBuffer.WriteLiteral(_ms, s, trailerBytes: 7); // up to six base-64 checksum digits and a semicolon
     }
 
     public void WriteChecksum(uint checksum)

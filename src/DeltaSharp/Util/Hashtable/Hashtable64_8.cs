@@ -15,6 +15,9 @@ namespace DeltaSharp.Util.Hashtable;
 /// Uses inline buffers on modern targets and byte arrays on .NET Standard 2.0.
 /// </summary>
 internal readonly ref struct Hashtable64_8
+#if NET9_0_OR_GREATER
+    : IHashtable
+#endif
 {
 #if NETSTANDARD2_0
     private readonly byte[] _collide = new byte[256];

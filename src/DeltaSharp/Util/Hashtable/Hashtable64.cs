@@ -15,7 +15,8 @@ namespace DeltaSharp.Util.Hashtable;
 /// </summary>
 internal readonly ref struct Hashtable64
 {
-    public readonly int BlockSize { get; } = 8;
+    internal const int BytesPerBlock = 8;
+    public int BlockSize => BytesPerBlock;
 
     private readonly Hashtable64_8 _hashtable8;
     private readonly Hashtable64_16 _hashtable16;
@@ -25,30 +26,31 @@ internal readonly ref struct Hashtable64
     private readonly Hashtable64_32 _hashtable32;
     private readonly byte _hashtable;
 
-    public Hashtable64(ReadOnlySpan<byte> data)
+    internal static byte GetIndexWidth(int sourceLength)
     {
         // Zero is the empty-slot sentinel; stored block indices are one-based.
-        if (data.Length / BlockSize <= byte.MaxValue)
-        {
-            _hashtable8 = new Hashtable64_8(data);
-            _hashtable = 8;
-        }
-        else if (data.Length < ushort.MaxValue * 8)
-        {
-            _hashtable16 = new Hashtable64_16(data);
-            _hashtable = 16;
-        }
+        if (sourceLength / BytesPerBlock <= byte.MaxValue)
+            return 8;
+        if (sourceLength < ushort.MaxValue * BytesPerBlock)
+            return 16;
 #if DELTASHARP_HASHTABLE24
-        else if (data.Length < 0xff_ff_ff * 8)
-        {
-            _hashtable24 = new Hashtable64_24(data);
-            _hashtable = 24;
-        }
+        if (sourceLength < 0xff_ff_ff * BytesPerBlock)
+            return 24;
 #endif
-        else
+        return 32;
+    }
+
+    public Hashtable64(ReadOnlySpan<byte> data)
+    {
+        _hashtable = GetIndexWidth(data.Length);
+        switch (_hashtable)
         {
-            _hashtable32 = new Hashtable64_32(data);
-            _hashtable = 32;
+            case 8: _hashtable8 = new Hashtable64_8(data); break;
+            case 16: _hashtable16 = new Hashtable64_16(data); break;
+#if DELTASHARP_HASHTABLE24
+            case 24: _hashtable24 = new Hashtable64_24(data); break;
+#endif
+            default: _hashtable32 = new Hashtable64_32(data); break;
         }
     }
 

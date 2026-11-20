@@ -88,40 +88,76 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
 
     private DeltaResult CreateCore(ReadOnlySpan<byte> origin, ReadOnlySpan<byte> target, int maxCandidatesPerPosition)
     {
-        using var writer = SizeHintConstructor is null
+        var writer = SizeHintConstructor is null
             ? new TWriter()
             : (TWriter)SizeHintConstructor.Invoke(new object[] { Math.Min(origin.Length / 2, target.Length) });
 
-        writer.WriteLength((ulong)target.Length);
-
-        var checksum = _checksum.Checksum(target);
-
-        // Small targets are inexpensive to encode as a single literal.
-        if (target.Length <= MinEvaluateLength)
+        try
         {
-            if (!target.IsEmpty)
+            writer.WriteLength((ulong)target.Length);
+            var checksum = _checksum.Checksum(target);
+
+            if (target.Length > MinEvaluateLength)
+                WriteMatches(origin, target, maxCandidatesPerPosition, ref writer);
+            else if (!target.IsEmpty)
                 writer.WriteInsert(target);
+
             writer.WriteChecksum(checksum);
-
-            return new DeltaResult()
-            {
-                Data = writer.GetOutput(),
-                Crc32 = checksum
-            };
-
+            return new DeltaResult { Data = writer.GetOutput(), Crc32 = checksum };
         }
+        finally
+        {
+            writer.Dispose();
+        }
+    }
 
-        // Compute the hash table used to locate matching sections in the source.
-        using var hashtable = new Hashtable64(origin);
-        var blockSize = hashtable.BlockSize;
+    private static void WriteMatches(ReadOnlySpan<byte> origin, ReadOnlySpan<byte> target,
+        int maxCandidatesPerPosition, ref TWriter writer)
+    {
+#if NET9_0_OR_GREATER
+        switch (Hashtable64.GetIndexWidth(origin.Length))
+        {
+            case 8:
+                using (var table = new Hashtable64_8(origin))
+                    EncodeMatches(table, origin, target, maxCandidatesPerPosition, ref writer);
+                break;
+            case 16:
+                using (var table = new Hashtable64_16(origin))
+                    EncodeMatches(table, origin, target, maxCandidatesPerPosition, ref writer);
+                break;
+#if DELTASHARP_HASHTABLE24
+            case 24:
+                using (var table = new Hashtable64_24(origin))
+                    EncodeMatches(table, origin, target, maxCandidatesPerPosition, ref writer);
+                break;
+#endif
+            default:
+                using (var table = new Hashtable64_32(origin))
+                    EncodeMatches(table, origin, target, maxCandidatesPerPosition, ref writer);
+                break;
+        }
+#else
+        using var table = new Hashtable64(origin);
+        EncodeMatches(table, origin, target, maxCandidatesPerPosition, ref writer);
+#endif
+    }
 
+#if NET9_0_OR_GREATER
+    private static void EncodeMatches<TTable>(TTable hashtable, ReadOnlySpan<byte> origin,
+        ReadOnlySpan<byte> target, int maxCandidatesPerPosition, ref TWriter writer)
+        where TTable : IHashtable, allows ref struct
+#else
+    private static void EncodeMatches(Hashtable64 hashtable, ReadOnlySpan<byte> origin,
+        ReadOnlySpan<byte> target, int maxCandidatesPerPosition, ref TWriter writer)
+#endif
+    {
         var unmatched = ReadOnlySpan<byte>.Empty;
         var unwritten = target;
         var next = target;
 
         while (!next.IsEmpty)
         {
-            if(next.Length< blockSize)
+            if (next.Length < Hashtable64.BytesPerBlock)
                 break;
 
             var bestMatchStart = 0;
@@ -185,18 +221,9 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
             }
         }
 
-        if(unwritten.Length>0)
+        if (unwritten.Length > 0)
             writer.WriteInsert(unwritten);
-
-        writer.WriteChecksum(checksum);
-
-        return new DeltaResult()
-        {
-            Data = writer.GetOutput(),
-            Crc32 = checksum
-        };
     }
-
 }
 
 /// <summary>Contains the bytes produced by creating or applying a patch and the target checksum.</summary>
