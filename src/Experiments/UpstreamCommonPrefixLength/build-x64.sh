@@ -13,7 +13,7 @@ git apply --check "$bench/four-byte-loop.patch"
 core="$runtime/artifacts/bin/coreclr/linux.x64.Release"
 bootstrap=( "$runtime"/.dotnet/shared/Microsoft.NETCore.App/12.0.* )
 test "${#bootstrap[@]}" -eq 1
-variants=(stock general-first early-empty)
+variants=(stock remainder-guard first-iteration)
 layouts=(layout-A layout-B layout-C)
 if [[ "$REPLICA" == 2 ]]; then layouts=(layout-C layout-B layout-A); fi
 printf 'upstream=%s\n' "$BASE_SHA" > "$reports/layouts.txt"
