@@ -1,7 +1,7 @@
-name: x64 CommonPrefixLength guard comparison
+name: x64 CommonPrefixLength early return
 on:
   push:
-    branches: [codex/x64-prefix-guards-20261122]
+    branches: [codex/x64-prefix-early-empty-20261122]
     paths:
       - '.github/workflows/x64-prefix-benchmark.yml'
       - 'src/Experiments/UpstreamCommonPrefixLength/**'

@@ -1,0 +1,96 @@
+--- a/src/libraries/System.Private.CoreLib/src/System/SpanHelpers.Byte.cs
++++ b/src/libraries/System.Private.CoreLib/src/System/SpanHelpers.Byte.cs
+@@ -1159,44 +1159,35 @@
+                 // so that either we are done or can use the unrolled loop below.
+                 i = length % 4;
+ 
+-                if (i > 0)
++                if (length == 0 || first != second)
+                 {
+-                    if (first != second)
++                    return 0;
++                }
++
++                if (i > 1)
++                {
++                    if (Unsafe.Add(ref first, 1) != Unsafe.Add(ref second, 1))
+                     {
+-                        return 0;
++                        return 1;
+                     }
+ 
+-                    if (i > 1)
++                    if (i > 2 && Unsafe.Add(ref first, 2) != Unsafe.Add(ref second, 2))
+                     {
+-                        if (Unsafe.Add(ref first, 1) != Unsafe.Add(ref second, 1))
+-                        {
+-                            return 1;
+-                        }
+-
+-                        if (i > 2 && Unsafe.Add(ref first, 2) != Unsafe.Add(ref second, 2))
+-                        {
+-                            return 2;
+-                        }
++                        return 2;
+                     }
+                 }
+ 
+                 for (; (nint)i <= (nint)length - 4; i += 4)
+                 {
+-                    if (Unsafe.Add(ref first, i + 0) != Unsafe.Add(ref second, i + 0)) goto Found0;
+-                    if (Unsafe.Add(ref first, i + 1) != Unsafe.Add(ref second, i + 1)) goto Found1;
+-                    if (Unsafe.Add(ref first, i + 2) != Unsafe.Add(ref second, i + 2)) goto Found2;
+-                    if (Unsafe.Add(ref first, i + 3) != Unsafe.Add(ref second, i + 3)) goto Found3;
++                    uint different = LoadUInt(ref first, i) ^ LoadUInt(ref second, i);
++                    if (different != 0)
++                    {
++                        int bits = BitConverter.IsLittleEndian ? BitOperations.TrailingZeroCount(different) : BitOperations.LeadingZeroCount(different);
++                        return i + (uint)(bits >> 3);
++                    }
+                 }
+ 
+                 return length;
+-            Found0:
+-                return i;
+-            Found1:
+-                return i + 1;
+-            Found2:
+-                return i + 2;
+-            Found3:
+-                return i + 3;
+             }
+ 
+             Debug.Assert(length >= (uint)Vector128<byte>.Count);
+--- a/src/libraries/System.Memory/tests/Span/CommonPrefixLength.T.cs
++++ b/src/libraries/System.Memory/tests/Span/CommonPrefixLength.T.cs
+@@ -61,6 +61,30 @@
+             Assert.Equal(expected, MemoryExtensions.CommonPrefixLength((Span<T>)new T[length1], new T[length2], customComparer));
+         }
+ 
++        [Theory]
++        [InlineData(3)]
++        [InlineData(4)]
++        [InlineData(5)]
++        [InlineData(6)]
++        [InlineData(7)]
++        [InlineData(8)]
++        public static void ShortByteSpans_ReturnFirstMismatch(int length)
++        {
++            ReadOnlySpan<byte> left = new byte[length + 1].AsSpan(1);
++            Span<byte> right = new byte[length + 3].AsSpan(2);
++
++            for (int i = 0; i < length; i++)
++            {
++                right[i] = 0x80;
++                Assert.Equal(i, left.CommonPrefixLength(right));
++                Assert.Equal(i, right.CommonPrefixLength(left));
++                right[i] = 0;
++            }
++
++            Assert.Equal(length, left.CommonPrefixLength(right));
++            Assert.Equal(length, right.CommonPrefixLength(left));
++        }
++
+         [Fact]
+         public static void PartialEquals_ReturnsPrefixLength_Byte()
+         {

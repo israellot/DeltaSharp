@@ -13,9 +13,9 @@ git apply --check "$bench/four-byte-loop.patch"
 core="$runtime/artifacts/bin/coreclr/linux.x64.Release"
 bootstrap=( "$runtime"/.dotnet/shared/Microsoft.NETCore.App/12.0.* )
 test "${#bootstrap[@]}" -eq 1
-variants=(stock minimal exact-four general-first word-mask word-first)
-layouts=(layout-A layout-B layout-C layout-D layout-E layout-F)
-if [[ "$REPLICA" == 2 ]]; then layouts=(layout-F layout-E layout-D layout-C layout-B layout-A); fi
+variants=(stock general-first early-empty)
+layouts=(layout-A layout-B layout-C)
+if [[ "$REPLICA" == 2 ]]; then layouts=(layout-C layout-B layout-A); fi
 printf 'upstream=%s\n' "$BASE_SHA" > "$reports/layouts.txt"
 stockdir="$RUNNER_TEMP/${layouts[0]}"
 for i in "${!variants[@]}"; do
@@ -46,5 +46,5 @@ for i in "${!variants[@]}"; do
     if cmp -s "$stockdir/System.Private.CoreLib.dll" "$dest/System.Private.CoreLib.dll"; then exit 1; fi
   fi
 done
-sha256sum "$RUNNER_TEMP"/layout-{A,B,C,D,E,F}/System.Private.CoreLib.dll | tee "$reports/corelib-hashes.txt"
-test "$(cut -d' ' -f1 "$reports/corelib-hashes.txt" | sort -u | wc -l)" -eq 6
+sha256sum "$RUNNER_TEMP"/layout-{A,B,C}/System.Private.CoreLib.dll | tee "$reports/corelib-hashes.txt"
+test "$(cut -d' ' -f1 "$reports/corelib-hashes.txt" | sort -u | wc -l)" -eq 3
