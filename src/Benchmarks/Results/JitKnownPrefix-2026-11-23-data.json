@@ -1,0 +1,3548 @@
+{
+  "upstream": "3d10ab44c1e907e5654f9100442112c41be4cd54",
+  "units": "ns per comparison, key pair, complete DER set or page method invocation as indicated by scenario",
+  "primaryRun": "https://github.com/israellot/DeltaSharp/actions/runs/45195614079",
+  "pageRun": "https://github.com/israellot/DeltaSharp/actions/runs/45196313970",
+  "batches": {
+    "arm": {
+      "processor": "Apple M3 Max",
+      "rows": {
+        "Dynamic/BothUnknown/First0to32": {
+          "stock": {
+            "mean": 2.243723,
+            "error": 0.023535,
+            "n": 16,
+            "launchMedians": [
+              2.240179,
+              2.2484
+            ]
+          },
+          "known48": {
+            "mean": 2.253903,
+            "error": 0.034302,
+            "n": 18,
+            "launchMedians": [
+              2.270475,
+              2.253422
+            ]
+          },
+          "known4816": {
+            "mean": 2.224649,
+            "error": 0.026167,
+            "n": 17,
+            "launchMedians": [
+              2.250544,
+              2.209842
+            ]
+          }
+        },
+        "Dynamic/OneKnown/First0to32": {
+          "stock": {
+            "mean": 1.81458,
+            "error": 0.010722,
+            "n": 18,
+            "launchMedians": [
+              1.813847,
+              1.820796
+            ]
+          },
+          "known48": {
+            "mean": 1.809885,
+            "error": 0.008853,
+            "n": 16,
+            "launchMedians": [
+              1.816529,
+              1.806871
+            ]
+          },
+          "known4816": {
+            "mean": 1.814431,
+            "error": 0.012298,
+            "n": 18,
+            "launchMedians": [
+              1.809101,
+              1.817783
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Mix0to32": {
+          "stock": {
+            "mean": 3.291313,
+            "error": 0.04335,
+            "n": 18,
+            "launchMedians": [
+              3.316926,
+              3.287535
+            ]
+          },
+          "known48": {
+            "mean": 3.472568,
+            "error": 0.106727,
+            "n": 17,
+            "launchMedians": [
+              3.381372,
+              3.533755
+            ]
+          },
+          "known4816": {
+            "mean": 3.325475,
+            "error": 0.048904,
+            "n": 17,
+            "launchMedians": [
+              3.297902,
+              3.353484
+            ]
+          }
+        },
+        "Dynamic/OneKnown/Mix0to32": {
+          "stock": {
+            "mean": 4.076259,
+            "error": 0.044235,
+            "n": 17,
+            "launchMedians": [
+              4.120977,
+              4.054124
+            ]
+          },
+          "known48": {
+            "mean": 4.109262,
+            "error": 0.049056,
+            "n": 18,
+            "launchMedians": [
+              4.115444,
+              4.089982
+            ]
+          },
+          "known4816": {
+            "mean": 4.079617,
+            "error": 0.062157,
+            "n": 16,
+            "launchMedians": [
+              4.058127,
+              4.129278
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Value16": {
+          "stock": {
+            "mean": 2.078881,
+            "error": 0.049411,
+            "n": 16,
+            "launchMedians": [
+              2.034931,
+              2.132503
+            ]
+          },
+          "known48": {
+            "mean": 2.04723,
+            "error": 0.015633,
+            "n": 17,
+            "launchMedians": [
+              2.037025,
+              2.051787
+            ]
+          },
+          "known4816": {
+            "mean": 2.072395,
+            "error": 0.017026,
+            "n": 17,
+            "launchMedians": [
+              2.067687,
+              2.077516
+            ]
+          }
+        },
+        "Dynamic/OneKnown/Value16": {
+          "stock": {
+            "mean": 3.473704,
+            "error": 0.032002,
+            "n": 18,
+            "launchMedians": [
+              3.49534,
+              3.446857
+            ]
+          },
+          "known48": {
+            "mean": 3.472004,
+            "error": 0.03011,
+            "n": 17,
+            "launchMedians": [
+              3.468479,
+              3.486942
+            ]
+          },
+          "known4816": {
+            "mean": 3.554883,
+            "error": 0.03166,
+            "n": 18,
+            "launchMedians": [
+              3.551455,
+              3.554758
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Value4": {
+          "stock": {
+            "mean": 2.386002,
+            "error": 0.023627,
+            "n": 16,
+            "launchMedians": [
+              2.388148,
+              2.381764
+            ]
+          },
+          "known48": {
+            "mean": 2.412379,
+            "error": 0.021975,
+            "n": 18,
+            "launchMedians": [
+              2.401588,
+              2.427118
+            ]
+          },
+          "known4816": {
+            "mean": 2.399646,
+            "error": 0.018275,
+            "n": 17,
+            "launchMedians": [
+              2.394893,
+              2.409791
+            ]
+          }
+        },
+        "Dynamic/OneKnown/Value4": {
+          "stock": {
+            "mean": 2.572245,
+            "error": 0.026714,
+            "n": 17,
+            "launchMedians": [
+              2.552994,
+              2.585819
+            ]
+          },
+          "known48": {
+            "mean": 2.578922,
+            "error": 0.021382,
+            "n": 18,
+            "launchMedians": [
+              2.567148,
+              2.582858
+            ]
+          },
+          "known4816": {
+            "mean": 2.596366,
+            "error": 0.038286,
+            "n": 18,
+            "launchMedians": [
+              2.578803,
+              2.613277
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Value8": {
+          "stock": {
+            "mean": 3.314926,
+            "error": 0.053504,
+            "n": 18,
+            "launchMedians": [
+              3.35089,
+              3.313743
+            ]
+          },
+          "known48": {
+            "mean": 3.329087,
+            "error": 0.027232,
+            "n": 16,
+            "launchMedians": [
+              3.350055,
+              3.330687
+            ]
+          },
+          "known4816": {
+            "mean": 3.292196,
+            "error": 0.041477,
+            "n": 16,
+            "launchMedians": [
+              3.318608,
+              3.289204
+            ]
+          }
+        },
+        "Dynamic/OneKnown/Value8": {
+          "stock": {
+            "mean": 3.386596,
+            "error": 0.038267,
+            "n": 18,
+            "launchMedians": [
+              3.413221,
+              3.37953
+            ]
+          },
+          "known48": {
+            "mean": 3.345406,
+            "error": 0.041065,
+            "n": 18,
+            "launchMedians": [
+              3.374841,
+              3.318654
+            ]
+          },
+          "known4816": {
+            "mean": 3.354451,
+            "error": 0.046948,
+            "n": 18,
+            "launchMedians": [
+              3.374599,
+              3.366223
+            ]
+          }
+        },
+        "Fixed/Known4/Equal": {
+          "stock": {
+            "mean": 1.900075,
+            "error": 0.006967,
+            "n": 18,
+            "launchMedians": [
+              1.9076,
+              1.896143
+            ]
+          },
+          "known48": {
+            "mean": 1.273995,
+            "error": 0.016426,
+            "n": 18,
+            "launchMedians": [
+              1.289994,
+              1.256897
+            ]
+          },
+          "known4816": {
+            "mean": 1.283662,
+            "error": 0.011592,
+            "n": 15,
+            "launchMedians": [
+              1.28692,
+              1.285255
+            ]
+          }
+        },
+        "Fixed/Known8/Equal": {
+          "stock": {
+            "mean": 2.628458,
+            "error": 0.052134,
+            "n": 18,
+            "launchMedians": [
+              2.683258,
+              2.575348
+            ]
+          },
+          "known48": {
+            "mean": 1.277576,
+            "error": 0.01474,
+            "n": 15,
+            "launchMedians": [
+              1.265556,
+              1.293372
+            ]
+          },
+          "known4816": {
+            "mean": 1.281126,
+            "error": 0.019212,
+            "n": 16,
+            "launchMedians": [
+              1.296933,
+              1.268207
+            ]
+          }
+        },
+        "Fixed/Known16/Equal": {
+          "stock": {
+            "mean": 1.57953,
+            "error": 0.030604,
+            "n": 16,
+            "launchMedians": [
+              1.552136,
+              1.606213
+            ]
+          },
+          "known48": {
+            "mean": 1.584409,
+            "error": 0.021901,
+            "n": 18,
+            "launchMedians": [
+              1.562873,
+              1.610244
+            ]
+          },
+          "known4816": {
+            "mean": 1.539568,
+            "error": 0.016696,
+            "n": 18,
+            "launchMedians": [
+              1.526017,
+              1.547795
+            ]
+          }
+        },
+        "Fixed/Known4and8/Equal": {
+          "stock": {
+            "mean": 1.894788,
+            "error": 0.004069,
+            "n": 18,
+            "launchMedians": [
+              1.893639,
+              1.8965
+            ]
+          },
+          "known48": {
+            "mean": 1.329303,
+            "error": 0.037685,
+            "n": 18,
+            "launchMedians": [
+              1.293322,
+              1.368023
+            ]
+          },
+          "known4816": {
+            "mean": 1.278081,
+            "error": 0.007976,
+            "n": 17,
+            "launchMedians": [
+              1.268709,
+              1.285766
+            ]
+          }
+        },
+        "Fixed/Known4/First": {
+          "stock": {
+            "mean": 1.37976,
+            "error": 0.014721,
+            "n": 18,
+            "launchMedians": [
+              1.380698,
+              1.37597
+            ]
+          },
+          "known48": {
+            "mean": 1.319139,
+            "error": 0.031231,
+            "n": 17,
+            "launchMedians": [
+              1.348059,
+              1.286559
+            ]
+          },
+          "known4816": {
+            "mean": 1.31547,
+            "error": 0.031248,
+            "n": 17,
+            "launchMedians": [
+              1.348353,
+              1.286218
+            ]
+          }
+        },
+        "Fixed/Known8/First": {
+          "stock": {
+            "mean": 1.361534,
+            "error": 0.005911,
+            "n": 17,
+            "launchMedians": [
+              1.357519,
+              1.368141
+            ]
+          },
+          "known48": {
+            "mean": 1.316977,
+            "error": 0.030174,
+            "n": 16,
+            "launchMedians": [
+              1.291203,
+              1.349901
+            ]
+          },
+          "known4816": {
+            "mean": 1.352824,
+            "error": 0.004917,
+            "n": 16,
+            "launchMedians": [
+              1.356642,
+              1.349888
+            ]
+          }
+        },
+        "Fixed/Known16/First": {
+          "stock": {
+            "mean": 1.635236,
+            "error": 0.015554,
+            "n": 18,
+            "launchMedians": [
+              1.65143,
+              1.618717
+            ]
+          },
+          "known48": {
+            "mean": 1.683418,
+            "error": 0.005582,
+            "n": 18,
+            "launchMedians": [
+              1.677933,
+              1.689434
+            ]
+          },
+          "known4816": {
+            "mean": 1.538597,
+            "error": 0.013617,
+            "n": 18,
+            "launchMedians": [
+              1.523023,
+              1.552119
+            ]
+          }
+        },
+        "Fixed/Known4and8/First": {
+          "stock": {
+            "mean": 1.360826,
+            "error": 0.003463,
+            "n": 16,
+            "launchMedians": [
+              1.359081,
+              1.364841
+            ]
+          },
+          "known48": {
+            "mean": 1.359812,
+            "error": 0.012088,
+            "n": 17,
+            "launchMedians": [
+              1.365093,
+              1.351903
+            ]
+          },
+          "known4816": {
+            "mean": 1.317751,
+            "error": 0.044354,
+            "n": 17,
+            "launchMedians": [
+              1.270349,
+              1.359215
+            ]
+          }
+        },
+        "Fixed/Known4/Last": {
+          "stock": {
+            "mean": 1.761755,
+            "error": 0.002298,
+            "n": 18,
+            "launchMedians": [
+              1.761425,
+              1.761093
+            ]
+          },
+          "known48": {
+            "mean": 1.294863,
+            "error": 0.011745,
+            "n": 16,
+            "launchMedians": [
+              1.285153,
+              1.302692
+            ]
+          },
+          "known4816": {
+            "mean": 1.328543,
+            "error": 0.037058,
+            "n": 16,
+            "launchMedians": [
+              1.357185,
+              1.289371
+            ]
+          }
+        },
+        "Fixed/Known8/Last": {
+          "stock": {
+            "mean": 3.212331,
+            "error": 0.009973,
+            "n": 18,
+            "launchMedians": [
+              3.214507,
+              3.20692
+            ]
+          },
+          "known48": {
+            "mean": 1.278387,
+            "error": 0.018947,
+            "n": 16,
+            "launchMedians": [
+              1.25827,
+              1.295032
+            ]
+          },
+          "known4816": {
+            "mean": 1.281072,
+            "error": 0.022869,
+            "n": 16,
+            "launchMedians": [
+              1.297768,
+              1.257664
+            ]
+          }
+        },
+        "Fixed/Known16/Last": {
+          "stock": {
+            "mean": 1.63351,
+            "error": 0.007358,
+            "n": 18,
+            "launchMedians": [
+              1.64039,
+              1.627601
+            ]
+          },
+          "known48": {
+            "mean": 1.661283,
+            "error": 0.022132,
+            "n": 16,
+            "launchMedians": [
+              1.639233,
+              1.682464
+            ]
+          },
+          "known4816": {
+            "mean": 1.545776,
+            "error": 0.02289,
+            "n": 17,
+            "launchMedians": [
+              1.522563,
+              1.569742
+            ]
+          }
+        },
+        "Fixed/Known4and8/Last": {
+          "stock": {
+            "mean": 1.77116,
+            "error": 0.008135,
+            "n": 15,
+            "launchMedians": [
+              1.779472,
+              1.764837
+            ]
+          },
+          "known48": {
+            "mean": 1.273718,
+            "error": 0.01618,
+            "n": 17,
+            "launchMedians": [
+              1.289365,
+              1.257155
+            ]
+          },
+          "known4816": {
+            "mean": 1.277514,
+            "error": 0.008222,
+            "n": 17,
+            "launchMedians": [
+              1.285561,
+              1.26843
+            ]
+          }
+        },
+        "Fixed/Known4/Varied": {
+          "stock": {
+            "mean": 2.621428,
+            "error": 0.096172,
+            "n": 17,
+            "launchMedians": [
+              2.742411,
+              2.529102
+            ]
+          },
+          "known48": {
+            "mean": 1.287781,
+            "error": 0.015172,
+            "n": 16,
+            "launchMedians": [
+              1.284666,
+              1.296082
+            ]
+          },
+          "known4816": {
+            "mean": 1.271698,
+            "error": 0.012809,
+            "n": 17,
+            "launchMedians": [
+              1.284831,
+              1.258622
+            ]
+          }
+        },
+        "Fixed/Known8/Varied": {
+          "stock": {
+            "mean": 3.065781,
+            "error": 0.165426,
+            "n": 17,
+            "launchMedians": [
+              3.22981,
+              2.917979
+            ]
+          },
+          "known48": {
+            "mean": 1.287527,
+            "error": 0.012109,
+            "n": 16,
+            "launchMedians": [
+              1.290543,
+              1.292468
+            ]
+          },
+          "known4816": {
+            "mean": 1.283639,
+            "error": 0.006274,
+            "n": 17,
+            "launchMedians": [
+              1.278518,
+              1.287393
+            ]
+          }
+        },
+        "Fixed/Known16/Varied": {
+          "stock": {
+            "mean": 1.736719,
+            "error": 0.020647,
+            "n": 18,
+            "launchMedians": [
+              1.754379,
+              1.713493
+            ]
+          },
+          "known48": {
+            "mean": 1.837609,
+            "error": 0.10872,
+            "n": 18,
+            "launchMedians": [
+              1.911065,
+              1.741207
+            ]
+          },
+          "known4816": {
+            "mean": 1.541622,
+            "error": 0.020706,
+            "n": 15,
+            "launchMedians": [
+              1.561632,
+              1.522183
+            ]
+          }
+        },
+        "Fixed/Known4and8/Varied": {
+          "stock": {
+            "mean": 2.450493,
+            "error": 0.039475,
+            "n": 18,
+            "launchMedians": [
+              2.473143,
+              2.458522
+            ]
+          },
+          "known48": {
+            "mean": 1.261269,
+            "error": 0.004729,
+            "n": 17,
+            "launchMedians": [
+              1.263629,
+              1.258094
+            ]
+          },
+          "known4816": {
+            "mean": 1.276758,
+            "error": 0.016225,
+            "n": 17,
+            "launchMedians": [
+              1.25968,
+              1.291575
+            ]
+          }
+        },
+        "FixedCaller/FrontCode8": {
+          "stock": {
+            "mean": 1.643128,
+            "error": 0.007879,
+            "n": 17,
+            "launchMedians": [
+              1.644549,
+              1.63987
+            ]
+          },
+          "known48": {
+            "mean": 0.861096,
+            "error": 0.005819,
+            "n": 18,
+            "launchMedians": [
+              0.856648,
+              0.863054
+            ]
+          },
+          "known4816": {
+            "mean": 0.852561,
+            "error": 0.003256,
+            "n": 18,
+            "launchMedians": [
+              0.850224,
+              0.854705
+            ]
+          }
+        },
+        "FixedCaller/DerShared7": {
+          "stock": {
+            "mean": 301.590071,
+            "error": 1.890864,
+            "n": 18,
+            "launchMedians": [
+              301.014665,
+              302.547038
+            ]
+          },
+          "known48": {
+            "mean": 297.529112,
+            "error": 3.799057,
+            "n": 17,
+            "launchMedians": [
+              295.82347,
+              296.962856
+            ]
+          },
+          "known4816": {
+            "mean": 296.311911,
+            "error": 2.255782,
+            "n": 18,
+            "launchMedians": [
+              294.937151,
+              296.772352
+            ]
+          }
+        }
+      }
+    },
+    "armRepeat": {
+      "processor": "Apple M3 Max",
+      "rows": {
+        "Dynamic/BothUnknown/First0to32": {
+          "stock": {
+            "mean": 2.272294,
+            "error": 0.038761,
+            "n": 18,
+            "launchMedians": [
+              2.253641,
+              2.296661
+            ]
+          },
+          "known48": {
+            "mean": 2.258788,
+            "error": 0.053672,
+            "n": 16,
+            "launchMedians": [
+              2.213622,
+              2.308947
+            ]
+          },
+          "known4816": {
+            "mean": 2.271101,
+            "error": 0.041524,
+            "n": 18,
+            "launchMedians": [
+              2.278881,
+              2.257029
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Mix0to32": {
+          "stock": {
+            "mean": 3.519823,
+            "error": 0.087599,
+            "n": 18,
+            "launchMedians": [
+              3.573772,
+              3.460964
+            ]
+          },
+          "known48": {
+            "mean": 3.441891,
+            "error": 0.090779,
+            "n": 18,
+            "launchMedians": [
+              3.532783,
+              3.359323
+            ]
+          },
+          "known4816": {
+            "mean": 3.472898,
+            "error": 0.137628,
+            "n": 18,
+            "launchMedians": [
+              3.420215,
+              3.558275
+            ]
+          }
+        },
+        "Fixed/Known16/Varied": {
+          "stock": {
+            "mean": 1.773908,
+            "error": 0.029708,
+            "n": 18,
+            "launchMedians": [
+              1.805171,
+              1.738987
+            ]
+          },
+          "known48": {
+            "mean": 1.775603,
+            "error": 0.02805,
+            "n": 18,
+            "launchMedians": [
+              1.809387,
+              1.747878
+            ]
+          },
+          "known4816": {
+            "mean": 1.571929,
+            "error": 0.033073,
+            "n": 17,
+            "launchMedians": [
+              1.61196,
+              1.546483
+            ]
+          }
+        },
+        "FixedCaller/DerShared7": {
+          "stock": {
+            "mean": 297.207599,
+            "error": 1.639825,
+            "n": 17,
+            "launchMedians": [
+              296.378461,
+              298.579842
+            ]
+          },
+          "known48": {
+            "mean": 295.013483,
+            "error": 1.206758,
+            "n": 18,
+            "launchMedians": [
+              294.051922,
+              295.284939
+            ]
+          },
+          "known4816": {
+            "mean": 295.137004,
+            "error": 0.789233,
+            "n": 18,
+            "launchMedians": [
+              294.810039,
+              294.907706
+            ]
+          }
+        }
+      }
+    },
+    "armPages": {
+      "processor": "Apple M3 Max",
+      "rows": {
+        "Pages/FirstDifference/EqualPages": {
+          "stock": {
+            "mean": 319.404875,
+            "error": 2.021465,
+            "n": 18,
+            "launchMedians": [
+              317.292512,
+              321.033013
+            ]
+          },
+          "known48": {
+            "mean": 322.246785,
+            "error": 1.432233,
+            "n": 16,
+            "launchMedians": [
+              322.729698,
+              322.032745
+            ]
+          },
+          "known4816": {
+            "mean": 316.748589,
+            "error": 0.59798,
+            "n": 16,
+            "launchMedians": [
+              316.491525,
+              317.034137
+            ]
+          }
+        },
+        "Pages/JointRunBytes/EqualPages": {
+          "stock": {
+            "mean": 324.058216,
+            "error": 4.503069,
+            "n": 18,
+            "launchMedians": [
+              325.967763,
+              322.891042
+            ]
+          },
+          "known48": {
+            "mean": 317.968832,
+            "error": 2.164386,
+            "n": 15,
+            "launchMedians": [
+              316.255762,
+              320.035899
+            ]
+          },
+          "known4816": {
+            "mean": 316.834232,
+            "error": 1.057673,
+            "n": 17,
+            "launchMedians": [
+              317.267432,
+              316.314012
+            ]
+          }
+        },
+        "Pages/FirstDifference/Header0": {
+          "stock": {
+            "mean": 1.088965,
+            "error": 0.002898,
+            "n": 16,
+            "launchMedians": [
+              1.089359,
+              1.08695
+            ]
+          },
+          "known48": {
+            "mean": 1.072359,
+            "error": 0.00702,
+            "n": 15,
+            "launchMedians": [
+              1.066426,
+              1.078945
+            ]
+          },
+          "known4816": {
+            "mean": 1.071266,
+            "error": 0.008978,
+            "n": 18,
+            "launchMedians": [
+              1.067704,
+              1.065958
+            ]
+          }
+        },
+        "Pages/JointRunBytes/Header0": {
+          "stock": {
+            "mean": 321.861945,
+            "error": 3.015925,
+            "n": 18,
+            "launchMedians": [
+              324.279084,
+              320.131492
+            ]
+          },
+          "known48": {
+            "mean": 319.551692,
+            "error": 1.388447,
+            "n": 18,
+            "launchMedians": [
+              318.798128,
+              320.038175
+            ]
+          },
+          "known4816": {
+            "mean": 320.707188,
+            "error": 2.899519,
+            "n": 16,
+            "launchMedians": [
+              323.878766,
+              318.304925
+            ]
+          }
+        },
+        "Pages/FirstDifference/Header7": {
+          "stock": {
+            "mean": 2.229378,
+            "error": 0.051012,
+            "n": 17,
+            "launchMedians": [
+              2.27986,
+              2.175209
+            ]
+          },
+          "known48": {
+            "mean": 1.068975,
+            "error": 0.002538,
+            "n": 17,
+            "launchMedians": [
+              1.070843,
+              1.067216
+            ]
+          },
+          "known4816": {
+            "mean": 1.088212,
+            "error": 0.012113,
+            "n": 17,
+            "launchMedians": [
+              1.091488,
+              1.08866
+            ]
+          }
+        },
+        "Pages/JointRunBytes/Header7": {
+          "stock": {
+            "mean": 321.67343,
+            "error": 2.69111,
+            "n": 18,
+            "launchMedians": [
+              322.870814,
+              321.60587
+            ]
+          },
+          "known48": {
+            "mean": 318.915223,
+            "error": 1.288258,
+            "n": 18,
+            "launchMedians": [
+              320.166585,
+              318.170079
+            ]
+          },
+          "known4816": {
+            "mean": 315.229606,
+            "error": 0.659557,
+            "n": 15,
+            "launchMedians": [
+              315.712761,
+              314.947711
+            ]
+          }
+        },
+        "Pages/FirstDifference/LastPayloadByte": {
+          "stock": {
+            "mean": 316.549975,
+            "error": 3.131372,
+            "n": 17,
+            "launchMedians": [
+              317.191713,
+              314.310518
+            ]
+          },
+          "known48": {
+            "mean": 324.001596,
+            "error": 4.297091,
+            "n": 16,
+            "launchMedians": [
+              320.14909,
+              327.954421
+            ]
+          },
+          "known4816": {
+            "mean": 317.587538,
+            "error": 1.254875,
+            "n": 18,
+            "launchMedians": [
+              318.2507,
+              317.02154
+            ]
+          }
+        },
+        "Pages/JointRunBytes/LastPayloadByte": {
+          "stock": {
+            "mean": 319.519091,
+            "error": 2.997041,
+            "n": 16,
+            "launchMedians": [
+              317.32438,
+              323.082423
+            ]
+          },
+          "known48": {
+            "mean": 318.606392,
+            "error": 1.372328,
+            "n": 16,
+            "launchMedians": [
+              318.113016,
+              319.279832
+            ]
+          },
+          "known4816": {
+            "mean": 327.276801,
+            "error": 2.893699,
+            "n": 18,
+            "launchMedians": [
+              328.892256,
+              326.200135
+            ]
+          }
+        }
+      }
+    },
+    "armPagesRepeat": {
+      "processor": "Apple M3 Max",
+      "rows": {
+        "Pages/FirstDifference/Header7": {
+          "stock": {
+            "mean": 2.259893,
+            "error": 0.021573,
+            "n": 18,
+            "launchMedians": [
+              2.237351,
+              2.279201
+            ]
+          },
+          "known48": {
+            "mean": 1.062583,
+            "error": 0.002646,
+            "n": 17,
+            "launchMedians": [
+              1.063622,
+              1.061175
+            ]
+          },
+          "known4816": {
+            "mean": 1.097186,
+            "error": 0.010222,
+            "n": 17,
+            "launchMedians": [
+              1.108336,
+              1.092206
+            ]
+          }
+        },
+        "Pages/FirstDifference/LastPayloadByte": {
+          "stock": {
+            "mean": 321.206338,
+            "error": 1.770064,
+            "n": 18,
+            "launchMedians": [
+              320.407471,
+              322.467933
+            ]
+          },
+          "known48": {
+            "mean": 320.646832,
+            "error": 3.185074,
+            "n": 16,
+            "launchMedians": [
+              322.119896,
+              318.847409
+            ]
+          },
+          "known4816": {
+            "mean": 319.238518,
+            "error": 2.710342,
+            "n": 16,
+            "launchMedians": [
+              318.961516,
+              319.924062
+            ]
+          }
+        }
+      }
+    },
+    "x64A": {
+      "processor": "AMD EPYC 7763 64-Core Processor",
+      "rows": {
+        "Dynamic/BothUnknown/First0to32": {
+          "stock": {
+            "mean": 2.9168,
+            "error": 0.151306,
+            "n": 16,
+            "launchMedians": [
+              3.050481,
+              2.764946
+            ]
+          },
+          "known48": {
+            "mean": 3.145208,
+            "error": 0.065112,
+            "n": 16,
+            "launchMedians": [
+              3.158922,
+              3.166576
+            ]
+          },
+          "known4816": {
+            "mean": 2.776933,
+            "error": 0.032428,
+            "n": 15,
+            "launchMedians": [
+              2.766887,
+              2.770085
+            ]
+          }
+        },
+        "Dynamic/OneKnown/First0to32": {
+          "stock": {
+            "mean": 2.845892,
+            "error": 0.030086,
+            "n": 17,
+            "launchMedians": [
+              2.835794,
+              2.838757
+            ]
+          },
+          "known48": {
+            "mean": 3.032372,
+            "error": 0.031733,
+            "n": 16,
+            "launchMedians": [
+              3.020164,
+              3.022133
+            ]
+          },
+          "known4816": {
+            "mean": 2.923812,
+            "error": 0.101952,
+            "n": 14,
+            "launchMedians": [
+              3.007463,
+              2.84863
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Mix0to32": {
+          "stock": {
+            "mean": 4.500415,
+            "error": 0.272011,
+            "n": 16,
+            "launchMedians": [
+              4.269332,
+              4.723292
+            ]
+          },
+          "known48": {
+            "mean": 4.724565,
+            "error": 0.033124,
+            "n": 15,
+            "launchMedians": [
+              4.724842,
+              4.719117
+            ]
+          },
+          "known4816": {
+            "mean": 4.467918,
+            "error": 0.312755,
+            "n": 15,
+            "launchMedians": [
+              4.781406,
+              4.217852
+            ]
+          }
+        },
+        "Dynamic/OneKnown/Mix0to32": {
+          "stock": {
+            "mean": 5.331132,
+            "error": 0.05939,
+            "n": 14,
+            "launchMedians": [
+              5.333158,
+              5.340479
+            ]
+          },
+          "known48": {
+            "mean": 5.310585,
+            "error": 0.097072,
+            "n": 15,
+            "launchMedians": [
+              5.324675,
+              5.258795
+            ]
+          },
+          "known4816": {
+            "mean": 4.941359,
+            "error": 0.462867,
+            "n": 15,
+            "launchMedians": [
+              4.510048,
+              5.274587
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Value16": {
+          "stock": {
+            "mean": 3.152285,
+            "error": 0.140449,
+            "n": 14,
+            "launchMedians": [
+              3.034671,
+              3.280567
+            ]
+          },
+          "known48": {
+            "mean": 3.249089,
+            "error": 0.056544,
+            "n": 15,
+            "launchMedians": [
+              3.294156,
+              3.20286
+            ]
+          },
+          "known4816": {
+            "mean": 3.226442,
+            "error": 0.08347,
+            "n": 15,
+            "launchMedians": [
+              3.188521,
+              3.224269
+            ]
+          }
+        },
+        "Dynamic/OneKnown/Value16": {
+          "stock": {
+            "mean": 4.239361,
+            "error": 0.047724,
+            "n": 17,
+            "launchMedians": [
+              4.215112,
+              4.230105
+            ]
+          },
+          "known48": {
+            "mean": 4.469191,
+            "error": 0.276795,
+            "n": 16,
+            "launchMedians": [
+              4.22104,
+              4.6645
+            ]
+          },
+          "known4816": {
+            "mean": 4.702682,
+            "error": 0.100627,
+            "n": 16,
+            "launchMedians": [
+              4.65032,
+              4.685002
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Value4": {
+          "stock": {
+            "mean": 3.156845,
+            "error": 0.039483,
+            "n": 16,
+            "launchMedians": [
+              3.140354,
+              3.172389
+            ]
+          },
+          "known48": {
+            "mean": 3.492578,
+            "error": 0.053718,
+            "n": 16,
+            "launchMedians": [
+              3.475268,
+              3.499513
+            ]
+          },
+          "known4816": {
+            "mean": 3.467497,
+            "error": 0.023132,
+            "n": 15,
+            "launchMedians": [
+              3.464544,
+              3.468317
+            ]
+          }
+        },
+        "Dynamic/OneKnown/Value4": {
+          "stock": {
+            "mean": 3.33893,
+            "error": 0.025326,
+            "n": 16,
+            "launchMedians": [
+              3.334879,
+              3.333231
+            ]
+          },
+          "known48": {
+            "mean": 3.484502,
+            "error": 0.148842,
+            "n": 16,
+            "launchMedians": [
+              3.626029,
+              3.346016
+            ]
+          },
+          "known4816": {
+            "mean": 3.470801,
+            "error": 0.1617,
+            "n": 15,
+            "launchMedians": [
+              3.327181,
+              3.622862
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Value8": {
+          "stock": {
+            "mean": 4.23765,
+            "error": 0.027988,
+            "n": 15,
+            "launchMedians": [
+              4.2555,
+              4.231832
+            ]
+          },
+          "known48": {
+            "mean": 4.295982,
+            "error": 0.079963,
+            "n": 16,
+            "launchMedians": [
+              4.258751,
+              4.254305
+            ]
+          },
+          "known4816": {
+            "mean": 4.294661,
+            "error": 0.021855,
+            "n": 15,
+            "launchMedians": [
+              4.30147,
+              4.28363
+            ]
+          }
+        },
+        "Dynamic/OneKnown/Value8": {
+          "stock": {
+            "mean": 4.420967,
+            "error": 0.385459,
+            "n": 15,
+            "launchMedians": [
+              4.094314,
+              4.806745
+            ]
+          },
+          "known48": {
+            "mean": 4.858168,
+            "error": 0.102186,
+            "n": 18,
+            "launchMedians": [
+              4.807464,
+              4.79443
+            ]
+          },
+          "known4816": {
+            "mean": 4.414632,
+            "error": 0.329103,
+            "n": 15,
+            "launchMedians": [
+              4.135723,
+              4.732621
+            ]
+          }
+        },
+        "Fixed/Known4/Equal": {
+          "stock": {
+            "mean": 3.866818,
+            "error": 1.08296,
+            "n": 16,
+            "launchMedians": [
+              5.240635,
+              3.164883
+            ]
+          },
+          "known48": {
+            "mean": 2.18612,
+            "error": 0.043381,
+            "n": 16,
+            "launchMedians": [
+              2.225572,
+              2.147116
+            ]
+          },
+          "known4816": {
+            "mean": 2.570678,
+            "error": 0.353366,
+            "n": 15,
+            "launchMedians": [
+              2.234211,
+              2.864081
+            ]
+          }
+        },
+        "Fixed/Known8/Equal": {
+          "stock": {
+            "mean": 4.114809,
+            "error": 0.027779,
+            "n": 15,
+            "launchMedians": [
+              4.125174,
+              4.124927
+            ]
+          },
+          "known48": {
+            "mean": 2.277736,
+            "error": 0.100166,
+            "n": 18,
+            "launchMedians": [
+              2.201671,
+              2.253269
+            ]
+          },
+          "known4816": {
+            "mean": 2.195753,
+            "error": 0.041024,
+            "n": 17,
+            "launchMedians": [
+              2.174915,
+              2.173106
+            ]
+          }
+        },
+        "Fixed/Known16/Equal": {
+          "stock": {
+            "mean": 2.240754,
+            "error": 0.028585,
+            "n": 16,
+            "launchMedians": [
+              2.22672,
+              2.236361
+            ]
+          },
+          "known48": {
+            "mean": 2.252804,
+            "error": 0.044898,
+            "n": 17,
+            "launchMedians": [
+              2.244466,
+              2.233057
+            ]
+          },
+          "known4816": {
+            "mean": 2.546422,
+            "error": 0.030658,
+            "n": 16,
+            "launchMedians": [
+              2.531461,
+              2.551892
+            ]
+          }
+        },
+        "Fixed/Known4and8/Equal": {
+          "stock": {
+            "mean": 3.048648,
+            "error": 0.210548,
+            "n": 15,
+            "launchMedians": [
+              3.208209,
+              2.854309
+            ]
+          },
+          "known48": {
+            "mean": 2.191319,
+            "error": 0.043899,
+            "n": 14,
+            "launchMedians": [
+              2.230819,
+              2.157096
+            ]
+          },
+          "known4816": {
+            "mean": 2.185194,
+            "error": 0.0387,
+            "n": 16,
+            "launchMedians": [
+              2.219323,
+              2.147935
+            ]
+          }
+        },
+        "Fixed/Known4/First": {
+          "stock": {
+            "mean": 2.259333,
+            "error": 0.069294,
+            "n": 16,
+            "launchMedians": [
+              2.230769,
+              2.231727
+            ]
+          },
+          "known48": {
+            "mean": 2.194025,
+            "error": 0.049568,
+            "n": 15,
+            "launchMedians": [
+              2.235554,
+              2.15148
+            ]
+          },
+          "known4816": {
+            "mean": 2.214602,
+            "error": 0.07958,
+            "n": 16,
+            "launchMedians": [
+              2.247907,
+              2.14352
+            ]
+          }
+        },
+        "Fixed/Known8/First": {
+          "stock": {
+            "mean": 1.934489,
+            "error": 0.018476,
+            "n": 14,
+            "launchMedians": [
+              1.941626,
+              1.93275
+            ]
+          },
+          "known48": {
+            "mean": 2.171894,
+            "error": 0.01381,
+            "n": 16,
+            "launchMedians": [
+              2.172997,
+              2.158043
+            ]
+          },
+          "known4816": {
+            "mean": 2.175529,
+            "error": 0.020948,
+            "n": 16,
+            "launchMedians": [
+              2.172706,
+              2.169844
+            ]
+          }
+        },
+        "Fixed/Known16/First": {
+          "stock": {
+            "mean": 2.289031,
+            "error": 0.053268,
+            "n": 16,
+            "launchMedians": [
+              2.268646,
+              2.271597
+            ]
+          },
+          "known48": {
+            "mean": 2.268541,
+            "error": 0.014117,
+            "n": 15,
+            "launchMedians": [
+              2.275291,
+              2.259108
+            ]
+          },
+          "known4816": {
+            "mean": 2.389363,
+            "error": 0.143672,
+            "n": 16,
+            "launchMedians": [
+              2.258489,
+              2.550878
+            ]
+          }
+        },
+        "Fixed/Known4and8/First": {
+          "stock": {
+            "mean": 2.104922,
+            "error": 0.176668,
+            "n": 15,
+            "launchMedians": [
+              1.950358,
+              2.237456
+            ]
+          },
+          "known48": {
+            "mean": 2.181926,
+            "error": 0.046254,
+            "n": 16,
+            "launchMedians": [
+              2.220139,
+              2.140432
+            ]
+          },
+          "known4816": {
+            "mean": 2.243744,
+            "error": 0.034308,
+            "n": 16,
+            "launchMedians": [
+              2.2314,
+              2.239302
+            ]
+          }
+        },
+        "Fixed/Known4/Last": {
+          "stock": {
+            "mean": 2.59703,
+            "error": 0.040496,
+            "n": 16,
+            "launchMedians": [
+              2.564573,
+              2.594889
+            ]
+          },
+          "known48": {
+            "mean": 2.151531,
+            "error": 0.009043,
+            "n": 15,
+            "launchMedians": [
+              2.159031,
+              2.149167
+            ]
+          },
+          "known4816": {
+            "mean": 2.164887,
+            "error": 0.035397,
+            "n": 17,
+            "launchMedians": [
+              2.167813,
+              2.148304
+            ]
+          }
+        },
+        "Fixed/Known8/Last": {
+          "stock": {
+            "mean": 4.132059,
+            "error": 0.061104,
+            "n": 16,
+            "launchMedians": [
+              4.099553,
+              4.122274
+            ]
+          },
+          "known48": {
+            "mean": 2.213888,
+            "error": 0.036203,
+            "n": 15,
+            "launchMedians": [
+              2.235826,
+              2.182564
+            ]
+          },
+          "known4816": {
+            "mean": 2.169442,
+            "error": 0.022617,
+            "n": 15,
+            "launchMedians": [
+              2.171752,
+              2.158152
+            ]
+          }
+        },
+        "Fixed/Known16/Last": {
+          "stock": {
+            "mean": 2.397437,
+            "error": 0.15002,
+            "n": 14,
+            "launchMedians": [
+              2.270914,
+              2.526075
+            ]
+          },
+          "known48": {
+            "mean": 2.298147,
+            "error": 0.040691,
+            "n": 17,
+            "launchMedians": [
+              2.277997,
+              2.27713
+            ]
+          },
+          "known4816": {
+            "mean": 2.558815,
+            "error": 0.038862,
+            "n": 18,
+            "launchMedians": [
+              2.539906,
+              2.540721
+            ]
+          }
+        },
+        "Fixed/Known4and8/Last": {
+          "stock": {
+            "mean": 2.749758,
+            "error": 0.147561,
+            "n": 17,
+            "launchMedians": [
+              2.845478,
+              2.591421
+            ]
+          },
+          "known48": {
+            "mean": 2.234153,
+            "error": 0.02101,
+            "n": 16,
+            "launchMedians": [
+              2.231312,
+              2.226589
+            ]
+          },
+          "known4816": {
+            "mean": 2.185448,
+            "error": 0.04545,
+            "n": 16,
+            "launchMedians": [
+              2.146209,
+              2.223887
+            ]
+          }
+        },
+        "Fixed/Known4/Varied": {
+          "stock": {
+            "mean": 3.027655,
+            "error": 0.026362,
+            "n": 17,
+            "launchMedians": [
+              3.023135,
+              3.021133
+            ]
+          },
+          "known48": {
+            "mean": 2.137802,
+            "error": 0.013325,
+            "n": 15,
+            "launchMedians": [
+              2.14028,
+              2.129687
+            ]
+          },
+          "known4816": {
+            "mean": 2.144872,
+            "error": 0.024696,
+            "n": 16,
+            "launchMedians": [
+              2.145585,
+              2.132846
+            ]
+          }
+        },
+        "Fixed/Known8/Varied": {
+          "stock": {
+            "mean": 4.005743,
+            "error": 0.342897,
+            "n": 16,
+            "launchMedians": [
+              4.287594,
+              3.660225
+            ]
+          },
+          "known48": {
+            "mean": 2.226789,
+            "error": 0.010669,
+            "n": 14,
+            "launchMedians": [
+              2.235997,
+              2.228657
+            ]
+          },
+          "known4816": {
+            "mean": 2.228116,
+            "error": 0.018052,
+            "n": 15,
+            "launchMedians": [
+              2.222898,
+              2.222795
+            ]
+          }
+        },
+        "Fixed/Known16/Varied": {
+          "stock": {
+            "mean": 2.450296,
+            "error": 0.102171,
+            "n": 17,
+            "launchMedians": [
+              2.556469,
+              2.343289
+            ]
+          },
+          "known48": {
+            "mean": 2.477665,
+            "error": 0.096553,
+            "n": 18,
+            "launchMedians": [
+              2.36585,
+              2.534433
+            ]
+          },
+          "known4816": {
+            "mean": 2.389245,
+            "error": 0.147256,
+            "n": 17,
+            "launchMedians": [
+              2.550392,
+              2.240217
+            ]
+          }
+        },
+        "Fixed/Known4and8/Varied": {
+          "stock": {
+            "mean": 3.038262,
+            "error": 0.046024,
+            "n": 17,
+            "launchMedians": [
+              3.042343,
+              3.016468
+            ]
+          },
+          "known48": {
+            "mean": 2.194697,
+            "error": 0.04547,
+            "n": 16,
+            "launchMedians": [
+              2.228594,
+              2.14989
+            ]
+          },
+          "known4816": {
+            "mean": 2.238471,
+            "error": 0.012603,
+            "n": 16,
+            "launchMedians": [
+              2.247041,
+              2.235798
+            ]
+          }
+        },
+        "FixedCaller/FrontCode8": {
+          "stock": {
+            "mean": 3.282864,
+            "error": 0.897562,
+            "n": 16,
+            "launchMedians": [
+              3.306153,
+              2.707645
+            ]
+          },
+          "known48": {
+            "mean": 1.286417,
+            "error": 0.012146,
+            "n": 15,
+            "launchMedians": [
+              1.288631,
+              1.283874
+            ]
+          },
+          "known4816": {
+            "mean": 1.290334,
+            "error": 0.022182,
+            "n": 15,
+            "launchMedians": [
+              1.288167,
+              1.28209
+            ]
+          }
+        },
+        "FixedCaller/DerShared7": {
+          "stock": {
+            "mean": 441.471611,
+            "error": 4.122808,
+            "n": 17,
+            "launchMedians": [
+              440.080533,
+              439.47768
+            ]
+          },
+          "known48": {
+            "mean": 441.107915,
+            "error": 5.658191,
+            "n": 17,
+            "launchMedians": [
+              438.647928,
+              439.000667
+            ]
+          },
+          "known4816": {
+            "mean": 440.704813,
+            "error": 5.614048,
+            "n": 15,
+            "launchMedians": [
+              439.359269,
+              438.743767
+            ]
+          }
+        }
+      }
+    },
+    "x64B": {
+      "processor": "Intel(R) Xeon(R) 6975P-C",
+      "rows": {
+        "Dynamic/BothUnknown/First0to32": {
+          "known4816": {
+            "mean": 2.239616,
+            "error": 0.233956,
+            "n": 17,
+            "launchMedians": [
+              2.018908,
+              2.480881
+            ]
+          },
+          "known48": {
+            "mean": 2.172883,
+            "error": 0.222439,
+            "n": 15,
+            "launchMedians": [
+              2.393655,
+              1.988278
+            ]
+          },
+          "stock": {
+            "mean": 2.035831,
+            "error": 0.059087,
+            "n": 17,
+            "launchMedians": [
+              1.985344,
+              2.076192
+            ]
+          }
+        },
+        "Dynamic/OneKnown/First0to32": {
+          "known4816": {
+            "mean": 1.906134,
+            "error": 0.083071,
+            "n": 15,
+            "launchMedians": [
+              1.972262,
+              1.844666
+            ]
+          },
+          "known48": {
+            "mean": 1.835147,
+            "error": 0.019221,
+            "n": 15,
+            "launchMedians": [
+              1.826539,
+              1.839572
+            ]
+          },
+          "stock": {
+            "mean": 1.898676,
+            "error": 0.064813,
+            "n": 18,
+            "launchMedians": [
+              1.962262,
+              1.823331
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Mix0to32": {
+          "known4816": {
+            "mean": 2.659619,
+            "error": 0.02017,
+            "n": 16,
+            "launchMedians": [
+              2.662054,
+              2.658443
+            ]
+          },
+          "known48": {
+            "mean": 3.055271,
+            "error": 0.018638,
+            "n": 15,
+            "launchMedians": [
+              3.054002,
+              3.071257
+            ]
+          },
+          "stock": {
+            "mean": 2.684521,
+            "error": 0.019381,
+            "n": 16,
+            "launchMedians": [
+              2.685971,
+              2.67927
+            ]
+          }
+        },
+        "Dynamic/OneKnown/Mix0to32": {
+          "known4816": {
+            "mean": 3.049547,
+            "error": 0.032332,
+            "n": 16,
+            "launchMedians": [
+              3.03722,
+              3.03684
+            ]
+          },
+          "known48": {
+            "mean": 3.131918,
+            "error": 0.095449,
+            "n": 17,
+            "launchMedians": [
+              3.032469,
+              3.235815
+            ]
+          },
+          "stock": {
+            "mean": 3.141203,
+            "error": 0.114819,
+            "n": 15,
+            "launchMedians": [
+              3.040484,
+              3.238508
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Value16": {
+          "known4816": {
+            "mean": 2.102512,
+            "error": 0.027267,
+            "n": 16,
+            "launchMedians": [
+              2.085629,
+              2.105359
+            ]
+          },
+          "known48": {
+            "mean": 2.110666,
+            "error": 0.02595,
+            "n": 18,
+            "launchMedians": [
+              2.093784,
+              2.094587
+            ]
+          },
+          "stock": {
+            "mean": 2.098075,
+            "error": 0.008584,
+            "n": 16,
+            "launchMedians": [
+              2.102651,
+              2.096884
+            ]
+          }
+        },
+        "Dynamic/OneKnown/Value16": {
+          "known4816": {
+            "mean": 3.01826,
+            "error": 0.035417,
+            "n": 15,
+            "launchMedians": [
+              2.984447,
+              3.056008
+            ]
+          },
+          "known48": {
+            "mean": 2.942949,
+            "error": 0.025782,
+            "n": 15,
+            "launchMedians": [
+              2.950448,
+              2.942853
+            ]
+          },
+          "stock": {
+            "mean": 3.036852,
+            "error": 0.026777,
+            "n": 14,
+            "launchMedians": [
+              3.062845,
+              3.019773
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Value4": {
+          "known4816": {
+            "mean": 2.453442,
+            "error": 0.074408,
+            "n": 18,
+            "launchMedians": [
+              2.514304,
+              2.396915
+            ]
+          },
+          "known48": {
+            "mean": 2.51612,
+            "error": 0.165495,
+            "n": 15,
+            "launchMedians": [
+              2.365106,
+              2.68039
+            ]
+          },
+          "stock": {
+            "mean": 2.403145,
+            "error": 0.030965,
+            "n": 17,
+            "launchMedians": [
+              2.389004,
+              2.411923
+            ]
+          }
+        },
+        "Dynamic/OneKnown/Value4": {
+          "known4816": {
+            "mean": 2.609099,
+            "error": 0.071225,
+            "n": 16,
+            "launchMedians": [
+              2.679889,
+              2.546119
+            ]
+          },
+          "known48": {
+            "mean": 2.558641,
+            "error": 0.019151,
+            "n": 16,
+            "launchMedians": [
+              2.559364,
+              2.561417
+            ]
+          },
+          "stock": {
+            "mean": 2.631254,
+            "error": 0.068405,
+            "n": 18,
+            "launchMedians": [
+              2.687171,
+              2.560812
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Value8": {
+          "known4816": {
+            "mean": 2.988032,
+            "error": 0.063491,
+            "n": 16,
+            "launchMedians": [
+              3.039465,
+              2.926279
+            ]
+          },
+          "known48": {
+            "mean": 3.047703,
+            "error": 0.080546,
+            "n": 17,
+            "launchMedians": [
+              3.10137,
+              2.961075
+            ]
+          },
+          "stock": {
+            "mean": 3.034779,
+            "error": 0.090471,
+            "n": 16,
+            "launchMedians": [
+              3.098518,
+              2.943313
+            ]
+          }
+        },
+        "Dynamic/OneKnown/Value8": {
+          "known4816": {
+            "mean": 3.063503,
+            "error": 0.082691,
+            "n": 17,
+            "launchMedians": [
+              3.102952,
+              2.987788
+            ]
+          },
+          "known48": {
+            "mean": 3.164577,
+            "error": 0.031701,
+            "n": 15,
+            "launchMedians": [
+              3.193965,
+              3.132388
+            ]
+          },
+          "stock": {
+            "mean": 3.057777,
+            "error": 0.120744,
+            "n": 16,
+            "launchMedians": [
+              2.948798,
+              3.184856
+            ]
+          }
+        },
+        "Fixed/Known4/Equal": {
+          "known4816": {
+            "mean": 1.566655,
+            "error": 0.35913,
+            "n": 17,
+            "launchMedians": [
+              1.43885,
+              1.382152
+            ]
+          },
+          "known48": {
+            "mean": 1.380074,
+            "error": 0.012999,
+            "n": 16,
+            "launchMedians": [
+              1.382511,
+              1.373366
+            ]
+          },
+          "stock": {
+            "mean": 1.934736,
+            "error": 0.014382,
+            "n": 16,
+            "launchMedians": [
+              1.931301,
+              1.940284
+            ]
+          }
+        },
+        "Fixed/Known8/Equal": {
+          "known4816": {
+            "mean": 1.391878,
+            "error": 0.018459,
+            "n": 16,
+            "launchMedians": [
+              1.379297,
+              1.398338
+            ]
+          },
+          "known48": {
+            "mean": 1.471838,
+            "error": 0.101817,
+            "n": 16,
+            "launchMedians": [
+              1.559197,
+              1.381211
+            ]
+          },
+          "stock": {
+            "mean": 2.88332,
+            "error": 0.026169,
+            "n": 18,
+            "launchMedians": [
+              2.861131,
+              2.897625
+            ]
+          }
+        },
+        "Fixed/Known16/Equal": {
+          "known4816": {
+            "mean": 1.443313,
+            "error": 0.017223,
+            "n": 16,
+            "launchMedians": [
+              1.432168,
+              1.453697
+            ]
+          },
+          "known48": {
+            "mean": 1.555998,
+            "error": 0.010015,
+            "n": 14,
+            "launchMedians": [
+              1.563287,
+              1.553819
+            ]
+          },
+          "stock": {
+            "mean": 1.554954,
+            "error": 0.013274,
+            "n": 16,
+            "launchMedians": [
+              1.550181,
+              1.560612
+            ]
+          }
+        },
+        "Fixed/Known4and8/Equal": {
+          "known4816": {
+            "mean": 1.380833,
+            "error": 0.013045,
+            "n": 16,
+            "launchMedians": [
+              1.378613,
+              1.388013
+            ]
+          },
+          "known48": {
+            "mean": 1.381958,
+            "error": 0.0078,
+            "n": 17,
+            "launchMedians": [
+              1.381606,
+              1.385166
+            ]
+          },
+          "stock": {
+            "mean": 1.959055,
+            "error": 0.035175,
+            "n": 17,
+            "launchMedians": [
+              1.996016,
+              1.92477
+            ]
+          }
+        },
+        "Fixed/Known4/First": {
+          "known4816": {
+            "mean": 1.370321,
+            "error": 0.013235,
+            "n": 18,
+            "launchMedians": [
+              1.366292,
+              1.362391
+            ]
+          },
+          "known48": {
+            "mean": 1.370007,
+            "error": 0.007718,
+            "n": 16,
+            "launchMedians": [
+              1.375661,
+              1.366954
+            ]
+          },
+          "stock": {
+            "mean": 1.441768,
+            "error": 0.016242,
+            "n": 16,
+            "launchMedians": [
+              1.432993,
+              1.451951
+            ]
+          }
+        },
+        "Fixed/Known8/First": {
+          "known4816": {
+            "mean": 1.465529,
+            "error": 0.065942,
+            "n": 18,
+            "launchMedians": [
+              1.530262,
+              1.403968
+            ]
+          },
+          "known48": {
+            "mean": 1.389057,
+            "error": 0.022842,
+            "n": 18,
+            "launchMedians": [
+              1.396335,
+              1.366188
+            ]
+          },
+          "stock": {
+            "mean": 1.440414,
+            "error": 0.019406,
+            "n": 16,
+            "launchMedians": [
+              1.435182,
+              1.434484
+            ]
+          }
+        },
+        "Fixed/Known16/First": {
+          "known4816": {
+            "mean": 1.43426,
+            "error": 0.020866,
+            "n": 17,
+            "launchMedians": [
+              1.423401,
+              1.426691
+            ]
+          },
+          "known48": {
+            "mean": 1.576913,
+            "error": 0.023786,
+            "n": 17,
+            "launchMedians": [
+              1.575352,
+              1.564093
+            ]
+          },
+          "stock": {
+            "mean": 1.571131,
+            "error": 0.015603,
+            "n": 15,
+            "launchMedians": [
+              1.567917,
+              1.571719
+            ]
+          }
+        },
+        "Fixed/Known4and8/First": {
+          "known4816": {
+            "mean": 1.376288,
+            "error": 0.016707,
+            "n": 16,
+            "launchMedians": [
+              1.382634,
+              1.366424
+            ]
+          },
+          "known48": {
+            "mean": 1.375423,
+            "error": 0.00778,
+            "n": 17,
+            "launchMedians": [
+              1.381811,
+              1.37004
+            ]
+          },
+          "stock": {
+            "mean": 1.519191,
+            "error": 0.039951,
+            "n": 18,
+            "launchMedians": [
+              1.566886,
+              1.476084
+            ]
+          }
+        },
+        "Fixed/Known4/Last": {
+          "known4816": {
+            "mean": 1.389607,
+            "error": 0.030062,
+            "n": 16,
+            "launchMedians": [
+              1.384394,
+              1.383531
+            ]
+          },
+          "known48": {
+            "mean": 1.449308,
+            "error": 0.06717,
+            "n": 16,
+            "launchMedians": [
+              1.386959,
+              1.522386
+            ]
+          },
+          "stock": {
+            "mean": 1.89951,
+            "error": 0.031519,
+            "n": 18,
+            "launchMedians": [
+              1.873439,
+              1.912936
+            ]
+          }
+        },
+        "Fixed/Known8/Last": {
+          "known4816": {
+            "mean": 1.386685,
+            "error": 0.014987,
+            "n": 16,
+            "launchMedians": [
+              1.393654,
+              1.376762
+            ]
+          },
+          "known48": {
+            "mean": 1.402239,
+            "error": 0.015827,
+            "n": 16,
+            "launchMedians": [
+              1.415313,
+              1.387626
+            ]
+          },
+          "stock": {
+            "mean": 2.720166,
+            "error": 0.029115,
+            "n": 15,
+            "launchMedians": [
+              2.714291,
+              2.734182
+            ]
+          }
+        },
+        "Fixed/Known16/Last": {
+          "known4816": {
+            "mean": 1.444056,
+            "error": 0.014966,
+            "n": 17,
+            "launchMedians": [
+              1.446163,
+              1.438889
+            ]
+          },
+          "known48": {
+            "mean": 1.570048,
+            "error": 0.014668,
+            "n": 18,
+            "launchMedians": [
+              1.579389,
+              1.559395
+            ]
+          },
+          "stock": {
+            "mean": 1.573499,
+            "error": 0.013322,
+            "n": 16,
+            "launchMedians": [
+              1.574911,
+              1.565311
+            ]
+          }
+        },
+        "Fixed/Known4and8/Last": {
+          "known4816": {
+            "mean": 1.381121,
+            "error": 0.012661,
+            "n": 15,
+            "launchMedians": [
+              1.374534,
+              1.391176
+            ]
+          },
+          "known48": {
+            "mean": 1.374636,
+            "error": 0.01193,
+            "n": 15,
+            "launchMedians": [
+              1.374142,
+              1.373591
+            ]
+          },
+          "stock": {
+            "mean": 1.875553,
+            "error": 0.007935,
+            "n": 14,
+            "launchMedians": [
+              1.872578,
+              1.881259
+            ]
+          }
+        },
+        "Fixed/Known4/Varied": {
+          "known4816": {
+            "mean": 1.371762,
+            "error": 0.00796,
+            "n": 15,
+            "launchMedians": [
+              1.367762,
+              1.376431
+            ]
+          },
+          "known48": {
+            "mean": 1.378665,
+            "error": 0.015092,
+            "n": 15,
+            "launchMedians": [
+              1.389703,
+              1.368266
+            ]
+          },
+          "stock": {
+            "mean": 2.194453,
+            "error": 0.154874,
+            "n": 16,
+            "launchMedians": [
+              2.32865,
+              2.027787
+            ]
+          }
+        },
+        "Fixed/Known8/Varied": {
+          "known4816": {
+            "mean": 1.382787,
+            "error": 0.009567,
+            "n": 15,
+            "launchMedians": [
+              1.386616,
+              1.379582
+            ]
+          },
+          "known48": {
+            "mean": 1.384199,
+            "error": 0.020024,
+            "n": 16,
+            "launchMedians": [
+              1.373702,
+              1.383619
+            ]
+          },
+          "stock": {
+            "mean": 2.834129,
+            "error": 0.052979,
+            "n": 17,
+            "launchMedians": [
+              2.807627,
+              2.850697
+            ]
+          }
+        },
+        "Fixed/Known16/Varied": {
+          "known4816": {
+            "mean": 1.447842,
+            "error": 0.016684,
+            "n": 18,
+            "launchMedians": [
+              1.434455,
+              1.456753
+            ]
+          },
+          "known48": {
+            "mean": 1.533811,
+            "error": 0.013173,
+            "n": 15,
+            "launchMedians": [
+              1.545147,
+              1.531408
+            ]
+          },
+          "stock": {
+            "mean": 1.547252,
+            "error": 0.028371,
+            "n": 17,
+            "launchMedians": [
+              1.53697,
+              1.543234
+            ]
+          }
+        },
+        "Fixed/Known4and8/Varied": {
+          "known4816": {
+            "mean": 1.395608,
+            "error": 0.016666,
+            "n": 18,
+            "launchMedians": [
+              1.395455,
+              1.374928
+            ]
+          },
+          "known48": {
+            "mean": 1.371831,
+            "error": 0.009184,
+            "n": 14,
+            "launchMedians": [
+              1.379642,
+              1.364923
+            ]
+          },
+          "stock": {
+            "mean": 2.325718,
+            "error": 0.038974,
+            "n": 17,
+            "launchMedians": [
+              2.321506,
+              2.306215
+            ]
+          }
+        },
+        "FixedCaller/FrontCode8": {
+          "known4816": {
+            "mean": 0.916583,
+            "error": 0.004756,
+            "n": 15,
+            "launchMedians": [
+              0.917027,
+              0.914255
+            ]
+          },
+          "known48": {
+            "mean": 0.91791,
+            "error": 0.003778,
+            "n": 15,
+            "launchMedians": [
+              0.919716,
+              0.914947
+            ]
+          },
+          "stock": {
+            "mean": 1.826573,
+            "error": 0.016979,
+            "n": 16,
+            "launchMedians": [
+              1.821997,
+              1.821044
+            ]
+          }
+        },
+        "FixedCaller/DerShared7": {
+          "known4816": {
+            "mean": 315.593314,
+            "error": 4.641789,
+            "n": 17,
+            "launchMedians": [
+              313.089444,
+              313.563977
+            ]
+          },
+          "known48": {
+            "mean": 313.157872,
+            "error": 1.70211,
+            "n": 14,
+            "launchMedians": [
+              315.259769,
+              312.854056
+            ]
+          },
+          "stock": {
+            "mean": 312.180481,
+            "error": 2.539774,
+            "n": 16,
+            "launchMedians": [
+              309.727548,
+              314.267324
+            ]
+          }
+        }
+      }
+    },
+    "x64Pages": {
+      "processor": "AMD EPYC 9V74 80-Core Processor",
+      "rows": {
+        "Pages/FirstDifference/EqualPages": {
+          "stock": {
+            "mean": 378.570721,
+            "error": 7.584766,
+            "n": 16,
+            "launchMedians": [
+              377.790183,
+              376.822803
+            ]
+          },
+          "known48": {
+            "mean": 367.70626,
+            "error": 4.841118,
+            "n": 15,
+            "launchMedians": [
+              373.267805,
+              365.08681
+            ]
+          },
+          "known4816": {
+            "mean": 367.878905,
+            "error": 5.277801,
+            "n": 16,
+            "launchMedians": [
+              369.367994,
+              364.040901
+            ]
+          }
+        },
+        "Pages/JointRunBytes/EqualPages": {
+          "stock": {
+            "mean": 369.312932,
+            "error": 8.409112,
+            "n": 15,
+            "launchMedians": [
+              373.196415,
+              367.39098
+            ]
+          },
+          "known48": {
+            "mean": 376.939705,
+            "error": 8.577446,
+            "n": 16,
+            "launchMedians": [
+              372.889661,
+              372.744789
+            ]
+          },
+          "known4816": {
+            "mean": 368.124884,
+            "error": 9.134755,
+            "n": 16,
+            "launchMedians": [
+              359.381387,
+              373.099557
+            ]
+          }
+        },
+        "Pages/FirstDifference/Header0": {
+          "stock": {
+            "mean": 1.815624,
+            "error": 0.010671,
+            "n": 16,
+            "launchMedians": [
+              1.819803,
+              1.815884
+            ]
+          },
+          "known48": {
+            "mean": 1.881499,
+            "error": 0.031039,
+            "n": 17,
+            "launchMedians": [
+              1.869993,
+              1.875965
+            ]
+          },
+          "known4816": {
+            "mean": 1.866513,
+            "error": 0.021821,
+            "n": 16,
+            "launchMedians": [
+              1.864623,
+              1.859512
+            ]
+          }
+        },
+        "Pages/JointRunBytes/Header0": {
+          "stock": {
+            "mean": 371.27003,
+            "error": 6.179998,
+            "n": 16,
+            "launchMedians": [
+              370.702061,
+              370.426555
+            ]
+          },
+          "known48": {
+            "mean": 369.22326,
+            "error": 3.546848,
+            "n": 16,
+            "launchMedians": [
+              370.260979,
+              369.446666
+            ]
+          },
+          "known4816": {
+            "mean": 376.567742,
+            "error": 2.61956,
+            "n": 15,
+            "launchMedians": [
+              377.295436,
+              377.397096
+            ]
+          }
+        },
+        "Pages/FirstDifference/Header7": {
+          "stock": {
+            "mean": 3.782616,
+            "error": 0.064132,
+            "n": 15,
+            "launchMedians": [
+              3.757395,
+              3.778592
+            ]
+          },
+          "known48": {
+            "mean": 1.858923,
+            "error": 0.010749,
+            "n": 15,
+            "launchMedians": [
+              1.855758,
+              1.860014
+            ]
+          },
+          "known4816": {
+            "mean": 1.878287,
+            "error": 0.036366,
+            "n": 16,
+            "launchMedians": [
+              1.867517,
+              1.863529
+            ]
+          }
+        },
+        "Pages/JointRunBytes/Header7": {
+          "stock": {
+            "mean": 368.66701,
+            "error": 8.428637,
+            "n": 14,
+            "launchMedians": [
+              361.99544,
+              377.208747
+            ]
+          },
+          "known48": {
+            "mean": 362.588964,
+            "error": 3.266837,
+            "n": 15,
+            "launchMedians": [
+              362.241515,
+              363.224463
+            ]
+          },
+          "known4816": {
+            "mean": 369.752592,
+            "error": 9.300071,
+            "n": 17,
+            "launchMedians": [
+              361.344356,
+              373.877281
+            ]
+          }
+        },
+        "Pages/FirstDifference/LastPayloadByte": {
+          "stock": {
+            "mean": 367.107775,
+            "error": 3.589157,
+            "n": 15,
+            "launchMedians": [
+              367.532058,
+              364.456257
+            ]
+          },
+          "known48": {
+            "mean": 365.370131,
+            "error": 4.423231,
+            "n": 17,
+            "launchMedians": [
+              363.872259,
+              364.764877
+            ]
+          },
+          "known4816": {
+            "mean": 367.845158,
+            "error": 4.69664,
+            "n": 17,
+            "launchMedians": [
+              370.077547,
+              364.138413
+            ]
+          }
+        },
+        "Pages/JointRunBytes/LastPayloadByte": {
+          "stock": {
+            "mean": 376.879213,
+            "error": 2.058563,
+            "n": 14,
+            "launchMedians": [
+              375.637325,
+              378.508158
+            ]
+          },
+          "known48": {
+            "mean": 369.010684,
+            "error": 7.356231,
+            "n": 14,
+            "launchMedians": [
+              363.645291,
+              375.581968
+            ]
+          },
+          "known4816": {
+            "mean": 364.955254,
+            "error": 3.033591,
+            "n": 14,
+            "launchMedians": [
+              365.98037,
+              363.784059
+            ]
+          }
+        }
+      }
+    },
+    "placebo1": {
+      "processor": "Intel(R) Xeon(R) 6975P-C",
+      "rows": {
+        "Dynamic/BothUnknown/First0to32": {
+          "stock": {
+            "mean": 2.376381,
+            "error": 0.021422,
+            "n": 22,
+            "launchMedians": [
+              2.382766,
+              2.386596,
+              2.376401
+            ]
+          },
+          "stockcopy": {
+            "mean": 2.096148,
+            "error": 0.141214,
+            "n": 24,
+            "launchMedians": [
+              1.952097,
+              2.348627,
+              1.981057
+            ]
+          },
+          "known48": {
+            "mean": 2.105057,
+            "error": 0.143126,
+            "n": 23,
+            "launchMedians": [
+              1.9722,
+              1.971844,
+              2.350052
+            ]
+          },
+          "known4816": {
+            "mean": 2.229806,
+            "error": 0.158205,
+            "n": 21,
+            "launchMedians": [
+              1.973778,
+              2.351204,
+              2.383348
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Mix0to32": {
+          "stock": {
+            "mean": 2.763892,
+            "error": 0.152293,
+            "n": 22,
+            "launchMedians": [
+              2.647829,
+              3.036229,
+              2.630996
+            ]
+          },
+          "stockcopy": {
+            "mean": 2.910448,
+            "error": 0.153427,
+            "n": 25,
+            "launchMedians": [
+              3.020551,
+              2.648341,
+              3.045893
+            ]
+          },
+          "known48": {
+            "mean": 3.028026,
+            "error": 0.010437,
+            "n": 22,
+            "launchMedians": [
+              3.018945,
+              3.039472,
+              3.036052
+            ]
+          },
+          "known4816": {
+            "mean": 3.034232,
+            "error": 0.021044,
+            "n": 23,
+            "launchMedians": [
+              3.027708,
+              3.021898,
+              3.053682
+            ]
+          }
+        },
+        "Dynamic/OneKnown/Mix0to32": {
+          "stock": {
+            "mean": 3.130785,
+            "error": 0.069286,
+            "n": 24,
+            "launchMedians": [
+              3.208102,
+              3.180846,
+              3.0051
+            ]
+          },
+          "stockcopy": {
+            "mean": 3.085384,
+            "error": 0.079932,
+            "n": 23,
+            "launchMedians": [
+              3.217096,
+              3.016351,
+              3.003139
+            ]
+          },
+          "known48": {
+            "mean": 3.071407,
+            "error": 0.079653,
+            "n": 24,
+            "launchMedians": [
+              3.198793,
+              2.997822,
+              2.993562
+            ]
+          },
+          "known4816": {
+            "mean": 3.144904,
+            "error": 0.076706,
+            "n": 26,
+            "launchMedians": [
+              3.177278,
+              2.993732,
+              3.200353
+            ]
+          }
+        },
+        "Fixed/Known8/First": {
+          "stock": {
+            "mean": 1.665571,
+            "error": 0.232137,
+            "n": 25,
+            "launchMedians": [
+              1.555635,
+              1.556207,
+              1.553535
+            ]
+          },
+          "stockcopy": {
+            "mean": 1.555925,
+            "error": 0.01654,
+            "n": 25,
+            "launchMedians": [
+              1.549185,
+              1.555659,
+              1.561314
+            ]
+          },
+          "known48": {
+            "mean": 1.36913,
+            "error": 0.014368,
+            "n": 24,
+            "launchMedians": [
+              1.384196,
+              1.357219,
+              1.352608
+            ]
+          },
+          "known4816": {
+            "mean": 1.355429,
+            "error": 0.004656,
+            "n": 22,
+            "launchMedians": [
+              1.357072,
+              1.350515,
+              1.359493
+            ]
+          }
+        },
+        "Fixed/Known16/Varied": {
+          "stock": {
+            "mean": 1.514691,
+            "error": 0.006968,
+            "n": 22,
+            "launchMedians": [
+              1.517133,
+              1.508719,
+              1.522571
+            ]
+          },
+          "stockcopy": {
+            "mean": 1.576899,
+            "error": 0.032538,
+            "n": 26,
+            "launchMedians": [
+              1.607682,
+              1.527415,
+              1.581839
+            ]
+          },
+          "known48": {
+            "mean": 1.54381,
+            "error": 0.038646,
+            "n": 24,
+            "launchMedians": [
+              1.580757,
+              1.519361,
+              1.506212
+            ]
+          },
+          "known4816": {
+            "mean": 1.42223,
+            "error": 0.007928,
+            "n": 22,
+            "launchMedians": [
+              1.421268,
+              1.436132,
+              1.414387
+            ]
+          }
+        }
+      }
+    },
+    "placebo2": {
+      "processor": "Intel(R) Xeon(R) 6975P-C",
+      "rows": {
+        "Dynamic/BothUnknown/First0to32": {
+          "known4816": {
+            "mean": 2.13484,
+            "error": 0.162526,
+            "n": 21,
+            "launchMedians": [
+              1.998555,
+              2.005763,
+              2.39147
+            ]
+          },
+          "known48": {
+            "mean": 2.255296,
+            "error": 0.143221,
+            "n": 24,
+            "launchMedians": [
+              1.975832,
+              2.356228,
+              2.373856
+            ]
+          },
+          "stockcopy": {
+            "mean": 2.249405,
+            "error": 0.152002,
+            "n": 23,
+            "launchMedians": [
+              2.357213,
+              2.373745,
+              1.970034
+            ]
+          },
+          "stock": {
+            "mean": 2.017404,
+            "error": 0.040208,
+            "n": 26,
+            "launchMedians": [
+              2.066336,
+              1.974712,
+              1.982632
+            ]
+          }
+        },
+        "Dynamic/BothUnknown/Mix0to32": {
+          "known4816": {
+            "mean": 2.909292,
+            "error": 0.157429,
+            "n": 24,
+            "launchMedians": [
+              3.025692,
+              2.646909,
+              3.104049
+            ]
+          },
+          "known48": {
+            "mean": 2.777339,
+            "error": 0.149809,
+            "n": 23,
+            "launchMedians": [
+              2.646258,
+              3.062452,
+              2.667693
+            ]
+          },
+          "stockcopy": {
+            "mean": 2.919974,
+            "error": 0.152409,
+            "n": 22,
+            "launchMedians": [
+              2.657194,
+              3.051976,
+              3.028101
+            ]
+          },
+          "stock": {
+            "mean": 2.861626,
+            "error": 0.151552,
+            "n": 27,
+            "launchMedians": [
+              3.139067,
+              2.619473,
+              2.833652
+            ]
+          }
+        },
+        "Dynamic/OneKnown/Mix0to32": {
+          "known4816": {
+            "mean": 3.158021,
+            "error": 0.085327,
+            "n": 25,
+            "launchMedians": [
+              3.211213,
+              3.006845,
+              3.22898
+            ]
+          },
+          "known48": {
+            "mean": 3.013,
+            "error": 0.007692,
+            "n": 21,
+            "launchMedians": [
+              3.02293,
+              3.018249,
+              3.010884
+            ]
+          },
+          "stockcopy": {
+            "mean": 3.244611,
+            "error": 0.041114,
+            "n": 24,
+            "launchMedians": [
+              3.218514,
+              3.315635,
+              3.205555
+            ]
+          },
+          "stock": {
+            "mean": 3.154706,
+            "error": 0.074093,
+            "n": 25,
+            "launchMedians": [
+              3.007599,
+              3.205328,
+              3.222897
+            ]
+          }
+        },
+        "Fixed/Known8/First": {
+          "known4816": {
+            "mean": 1.579296,
+            "error": 0.237454,
+            "n": 26,
+            "launchMedians": [
+              1.781843,
+              1.472029,
+              1.380255
+            ]
+          },
+          "known48": {
+            "mean": 1.381529,
+            "error": 0.00967,
+            "n": 23,
+            "launchMedians": [
+              1.383742,
+              1.396445,
+              1.369749
+            ]
+          },
+          "stockcopy": {
+            "mean": 1.532644,
+            "error": 0.040898,
+            "n": 25,
+            "launchMedians": [
+              1.455879,
+              1.545392,
+              1.561123
+            ]
+          },
+          "stock": {
+            "mean": 1.495989,
+            "error": 0.038656,
+            "n": 26,
+            "launchMedians": [
+              1.552762,
+              1.481071,
+              1.439494
+            ]
+          }
+        },
+        "Fixed/Known16/Varied": {
+          "known4816": {
+            "mean": 1.417961,
+            "error": 0.00981,
+            "n": 24,
+            "launchMedians": [
+              1.435202,
+              1.416188,
+              1.40579
+            ]
+          },
+          "known48": {
+            "mean": 1.560711,
+            "error": 0.046019,
+            "n": 22,
+            "launchMedians": [
+              1.639938,
+              1.534805,
+              1.515255
+            ]
+          },
+          "stockcopy": {
+            "mean": 1.572035,
+            "error": 0.036768,
+            "n": 27,
+            "launchMedians": [
+              1.546142,
+              1.526989,
+              1.636495
+            ]
+          },
+          "stock": {
+            "mean": 1.545175,
+            "error": 0.020982,
+            "n": 24,
+            "launchMedians": [
+              1.579656,
+              1.519181,
+              1.535839
+            ]
+          }
+        }
+      }
+    }
+  },
+  "repeatRun": "https://github.com/israellot/DeltaSharp/actions/runs/45199312544"
+}
