@@ -1,0 +1,58 @@
+name: Exact 16-byte prefix comparison
+on:
+  push:
+    branches: [codex/fixed-prefix16-20261123]
+    paths:
+      - '.github/workflows/exact16.yml'
+      - 'src/Experiments/Exact16/**'
+permissions:
+  contents: read
+jobs:
+  native:
+    name: Linux x64 replica ${{ matrix.replica }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        replica: [1, 2]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1
+        with:
+          dotnet-version: '11.0.100'
+      - name: Prepare matching x64 runtime and benchmark
+        working-directory: src/Experiments/Exact16
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/dotnet12" "$RUNNER_TEMP/report"
+          test "$(uname -m)" = x86_64
+          lscpu > "$RUNNER_TEMP/report/cpu.txt"
+          curl --retry 3 -fsSL 'https://ci.dot.net/public/Sdk/12.0.100-alpha.1.26557.102/dotnet-sdk-12.0.100-alpha.1.26557.102-linux-x64.tar.gz' | tar -xz -C "$RUNNER_TEMP/dotnet12"
+          printf '%s\n' '{"sdk":{"version":"11.0.100","rollForward":"latestPatch"}}' > global.json
+          dotnet build -c Release
+          rm global.json
+      - name: Compare exact-16 implementations
+        working-directory: src/Experiments/Exact16
+        env:
+          DOTNET_ROLL_FORWARD: Major
+          DOTNET_NOLOGO: '1'
+        run: |
+          set -euo pipefail
+          cpu=$(awk '/Cpus_allowed_list:/ {print $2}' /proc/self/status | cut -d, -f1 | cut -d- -f1)
+          echo "Benchmark CPU: $cpu" >> "$RUNNER_TEMP/report/cpu.txt"
+          cli="$RUNNER_TEMP/dotnet12/dotnet"
+          driver=bin/Release/net11.0/Prefix16.dll
+          "$cli" "$driver" --verify | tee "$RUNNER_TEMP/report/verification.txt"
+          DOTNET_JitDisasm='Stock:Match Words:Match VectorMask:Match VectorWords:Match' DOTNET_JitStdOutFile="$RUNNER_TEMP/report/kernels.asm" "$cli" "$driver" --jit
+          taskset -c "$cpu" "$cli" "$driver" --filter '*' --runtimes net11.0 --cli "$cli" --launchCount 2 --warmupCount 5 --iterationCount 9 --iterationTime 120 --exporters json --artifacts "$RUNNER_TEMP/report/bdn" > "$RUNNER_TEMP/report/timings.txt" 2>&1 || { tail -80 "$RUNNER_TEMP/report/timings.txt"; exit 1; }
+          grep -m1 '^// Runtime=.NET 12.0.0 .*X64' "$RUNNER_TEMP/report/timings.txt"
+          tail -6 "$RUNNER_TEMP/report/timings.txt"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: exact16-x64-${{ matrix.replica }}
+          path: ${{ runner.temp }}/report
+          retention-days: 14
