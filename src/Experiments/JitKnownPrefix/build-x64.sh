@@ -14,9 +14,9 @@ git apply --check "$bench/known4816.patch"
 core="$runtime/artifacts/bin/coreclr/linux.x64.Release"
 bootstrap=( "$runtime"/.dotnet/shared/Microsoft.NETCore.App/12.0.* )
 test "${#bootstrap[@]}" -eq 1
-variants=(stock known48 known4816)
-layouts=(layout-A layout-B layout-C)
-if [[ "$REPLICA" == 2 ]]; then layouts=(layout-C layout-B layout-A); fi
+variants=(stock stockcopy known48 known4816)
+layouts=(layout-A layout-B layout-C layout-D)
+if [[ "$REPLICA" == 2 ]]; then layouts=(layout-D layout-C layout-B layout-A); fi
 printf 'upstream=%s\n' "$BASE_SHA" > "$reports/layouts.txt"
 stockdir="$RUNNER_TEMP/${layouts[0]}"
 for i in "${!variants[@]}"; do
@@ -25,6 +25,10 @@ for i in "${!variants[@]}"; do
   printf '%s=%s\n' "$variant" "$layout" >> "$reports/layouts.txt"
   patch="$bench/$variant.patch"
   dest="$RUNNER_TEMP/$layout"
+  if [[ "$variant" == stockcopy ]]; then
+    cp -al "$stockdir" "$dest"
+    continue
+  fi
   if [[ "$variant" == stock ]]; then
     mkdir -p "$dest"
     cp -a "${bootstrap[0]}/." "$dest/"
@@ -43,5 +47,5 @@ for i in "${!variants[@]}"; do
     if cmp -s "$stockdir/System.Private.CoreLib.dll" "$dest/System.Private.CoreLib.dll"; then exit 1; fi
   fi
 done
-sha256sum "$RUNNER_TEMP"/layout-{A,B,C}/System.Private.CoreLib.dll | tee "$reports/corelib-hashes.txt"
+sha256sum "$RUNNER_TEMP"/layout-{A,B,C,D}/System.Private.CoreLib.dll | tee "$reports/corelib-hashes.txt"
 test "$(cut -d' ' -f1 "$reports/corelib-hashes.txt" | sort -u | wc -l)" -eq 3
