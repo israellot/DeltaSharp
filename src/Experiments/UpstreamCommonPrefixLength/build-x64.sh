@@ -13,19 +13,38 @@ git apply --check "$bench/four-byte-loop.patch"
 core="$runtime/artifacts/bin/coreclr/linux.x64.Release"
 bootstrap=( "$runtime"/.dotnet/shared/Microsoft.NETCore.App/12.0.* )
 test "${#bootstrap[@]}" -eq 1
-mkdir -p "$RUNNER_TEMP/layout-A" "$RUNNER_TEMP/layout-B"
-stock=layout-A
-candidate=layout-B
-if [[ "$REPLICA" == 2 ]]; then stock=layout-B; candidate=layout-A; fi
-printf 'stock=%s\ncandidate=%s\nupstream=%s\n' "$stock" "$candidate" "$BASE_SHA" > "$reports/layouts.txt"
-for layout in "$stock" "$candidate"; do
-  cp -a "${bootstrap[0]}/." "$RUNNER_TEMP/$layout/"
-  cp "$core/corerun" "$core/libcoreclr.so" "$core/libclrjit.so" "$core/libclrgc.so" "$RUNNER_TEMP/$layout/"
+variants=(stock minimal exact-four general-first word-mask word-first)
+layouts=(layout-A layout-B layout-C layout-D layout-E layout-F)
+if [[ "$REPLICA" == 2 ]]; then layouts=(layout-F layout-E layout-D layout-C layout-B layout-A); fi
+printf 'upstream=%s\n' "$BASE_SHA" > "$reports/layouts.txt"
+stockdir="$RUNNER_TEMP/${layouts[0]}"
+for i in "${!variants[@]}"; do
+  variant=${variants[$i]}
+  layout=${layouts[$i]}
+  printf '%s=%s\n' "$variant" "$layout" >> "$reports/layouts.txt"
+  patch="$bench/$variant.patch"
+  case "$variant" in
+    minimal) patch="$bench/four-byte-loop.patch" ;;
+    exact-four) patch="$bench/exact-four-guard.patch" ;;
+  esac
+  dest="$RUNNER_TEMP/$layout"
+  if [[ "$variant" == stock ]]; then
+    mkdir -p "$dest"
+    cp -a "${bootstrap[0]}/." "$dest/"
+    cp "$core/corerun" "$core/libcoreclr.so" "$core/libclrjit.so" "$core/libclrgc.so" "$dest/"
+  else
+    cp -al "$stockdir" "$dest"
+    # Each layout needs its own writable CoreLib inode.
+    rm "$dest/System.Private.CoreLib.dll"
+    git apply "$patch"
+    ./build.sh clr.nativecorelib -c Release /p:_RepoToolManifest="$RUNNER_TEMP/no-optional-tools" > "$reports/$variant-build.log" 2>&1 || { tail -100 "$reports/$variant-build.log"; exit 1; }
+    git apply --reverse "$patch"
+  fi
+  cp "$core/System.Private.CoreLib.dll" "$dest/"
+  if [[ "$variant" != stock ]]; then
+    diff -qr -x System.Private.CoreLib.dll "$stockdir" "$dest"
+    if cmp -s "$stockdir/System.Private.CoreLib.dll" "$dest/System.Private.CoreLib.dll"; then exit 1; fi
+  fi
 done
-cp "$core/System.Private.CoreLib.dll" "$RUNNER_TEMP/$stock/"
-git apply "$bench/four-byte-loop.patch"
-./build.sh clr.nativecorelib -c Release /p:_RepoToolManifest="$RUNNER_TEMP/no-optional-tools" > "$reports/candidate-build.log" 2>&1 || { tail -100 "$reports/candidate-build.log"; exit 1; }
-cp "$core/System.Private.CoreLib.dll" "$RUNNER_TEMP/$candidate/"
-diff -qr -x System.Private.CoreLib.dll "$RUNNER_TEMP/layout-A" "$RUNNER_TEMP/layout-B"
-if cmp -s "$RUNNER_TEMP/layout-A/System.Private.CoreLib.dll" "$RUNNER_TEMP/layout-B/System.Private.CoreLib.dll"; then exit 1; fi
-sha256sum "$RUNNER_TEMP"/layout-{A,B}/System.Private.CoreLib.dll | tee "$reports/corelib-hashes.txt"
+sha256sum "$RUNNER_TEMP"/layout-{A,B,C,D,E,F}/System.Private.CoreLib.dll | tee "$reports/corelib-hashes.txt"
+test "$(cut -d' ' -f1 "$reports/corelib-hashes.txt" | sort -u | wc -l)" -eq 6

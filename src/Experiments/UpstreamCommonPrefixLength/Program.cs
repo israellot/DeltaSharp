@@ -44,6 +44,7 @@ static void Check<T>(ReadOnlySpan<T> a, ReadOnlySpan<T> b, int expected) where T
 public class Prefix
 {
     [Params("0-equal", "1-equal", "3-last", "4-first", "4-last", "5-last", "6-last", "7-first", "7-last", "7-equal", "vary4to7",
+        "4-mixed", "4-mostlyFirst", "4-equal", "5-at1", "8-first", "8-at4", "12-first", "12-at8",
         "vary0to32", "vary4to7-first", "vary0to32-first", "8-last", "15-last", "16-last", "64-equal", "1024-equal")]
     public string Input { get; set; } = "";
 
@@ -69,6 +70,15 @@ public class Prefix
             int p = Input.EndsWith("-first", StringComparison.Ordinal) ? 0 :
                 Input.StartsWith("vary", StringComparison.Ordinal) ? rng.Next(length + 1) :
                 Input.EndsWith("-last", StringComparison.Ordinal) ? length - 1 : length;
+            p = Input switch
+            {
+                "4-mixed" => rng.Next(5),
+                "4-mostlyFirst" => rng.Next(20) switch { 0 => 3, 1 => 4, _ => 0 },
+                "5-at1" => 1,
+                "8-at4" => 4,
+                "12-at8" => 8,
+                _ => p
+            };
             if (p < length) b[p+2] ^= 1;
             if (a.AsSpan(1).CommonPrefixLength(b.AsSpan(2)) != p) throw new Exception();
             pairs[i] = (a, b);
