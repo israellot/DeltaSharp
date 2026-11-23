@@ -1,10 +1,11 @@
-name: JIT-known prefix lengths on x64
+name: JIT-known page header comparison on x64
 on:
   push:
-    branches: [codex/jit-known-prefix-20261123]
+    branches: [codex/jit-known-prefix-caller-20261123]
     paths:
       - '.github/workflows/jit-known-prefix.yml'
       - 'src/Experiments/JitKnownPrefix/**'
+      - 'src/Experiments/JitKnownPrefixCaller/**'
 
 permissions:
   contents: read
@@ -17,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        replica: [1, 2]
+        replica: [1]
     env:
       REPLICA: ${{ matrix.replica }}
       DOTNET_CLI_TELEMETRY_OPTOUT: '1'
@@ -41,7 +42,7 @@ jobs:
       - name: Build stock and two constant-length variants
         run: bash src/Experiments/JitKnownPrefix/build-x64.sh
       - name: Verify and benchmark both layouts
-        run: bash src/Experiments/JitKnownPrefix/measure-x64.sh
+        run: bash src/Experiments/JitKnownPrefixCaller/measure-x64.sh
       - name: Upload measurements and diagnostics
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
