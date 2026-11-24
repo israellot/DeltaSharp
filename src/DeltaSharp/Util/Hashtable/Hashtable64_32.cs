@@ -42,14 +42,14 @@ internal unsafe readonly ref struct Hashtable64_32
         // Compute the hash table used to locate matching sections in the source.
         int nHash = Hash.TableSize(nLong);
 
-        _nHashBitMask = (ulong)(nHash - 1);
+        ulong bucketMask = (ulong)(nHash - 1);
+        _nHashBitMask = bucketMask;
 
-        _buffer = ArrayPool<int>.Shared.Rent(nHash * 2);        
-        _buffer.AsSpan().Slice(0, nHash * 2).Fill(-1); //use sign bit to indicate empty
-
-        Span<int> landmark = _buffer.AsSpan().Slice(nHash, nHash);
-        Span<int> collide = _buffer.AsSpan().Slice(0, nHash);
-        
+        _buffer = ArrayPool<int>.Shared.Rent(nHash * 2);
+        Span<int> landmark = _buffer.AsSpan(nHash, nHash);
+        landmark.Fill(-1);
+        // Every live collision link is assigned during insertion below.
+        Span<int> collide = _buffer.AsSpan(0, nLong);
 
         ReadOnlySpan<ulong> ulongData = MemoryMarshal.Cast<byte, ulong>(data).Slice(0, nLong);
 
@@ -62,7 +62,7 @@ internal unsafe readonly ref struct Hashtable64_32
                 {
                     var d = ulongData[i];
 
-                    var hv = Bucket(d);
+                    nuint hv = (nuint)(Hash.Hash64(d) & bucketMask);
 
                     *(collideP + i) = landmarkP[hv];
                     *(landmarkP + hv) = i;
