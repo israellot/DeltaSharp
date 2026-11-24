@@ -56,6 +56,29 @@ public class HashtableTests
 
     }
 
+    [Fact]
+    public void Hashtable32CountsOnlyCompleteBlocksWhenReusingPooledStorage()
+    {
+        // Both inputs use eight buckets. The first table writes links in slots the second never uses.
+        using (var full = new Hashtable64_32(new byte[8 * 8]))
+            Assert.Equal(7, full.GetStats().Collisions);
+
+        var data = new byte[5 * 8 + 7];
+        using var table = new Hashtable64_32(data);
+        var stats = table.GetStats();
+        Assert.Equal(8, stats.Slots);
+        Assert.Equal(1, stats.SlotsFilled);
+        Assert.Equal(4, stats.Collisions);
+
+        int position = table.Match(data);
+        for (int block = 0; block < 5; block++)
+        {
+            Assert.Equal(block * 8, position);
+            position = table.More(position);
+        }
+        Assert.True(position < 0);
+    }
+
 #if DELTASHARP_HASHTABLE24
     [Fact]
     public void Hashtable24Match()
