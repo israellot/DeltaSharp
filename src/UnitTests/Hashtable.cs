@@ -56,6 +56,56 @@ public class HashtableTests
 
     }
 
+    [Fact]
+    public void Hashtable32TraversesMixedTagsInSourceOrder()
+    {
+        byte[] firstBytes = [0x0f, 0x00, 0x08, 0xff];
+        var source = new byte[firstBytes.Length * 8];
+        for (int block = 0; block < firstBytes.Length; block++)
+            SeedInBucket(firstBytes[block], 0, 3).CopyTo(source, block * 8);
+
+        using var table = new Hashtable64_32(source);
+        int position = table.Match(source);
+        for (int block = 0; block < firstBytes.Length; block++)
+        {
+            Assert.Equal(block * 8, position);
+            position = table.More(position);
+        }
+
+        Assert.True(position < 0);
+        Assert.True(table.Match(SeedInBucket(0xff, 1, 3)) < 0);
+
+        foreach (int queryBlock in new[] { 2, 3 })
+        {
+            var query = source.AsSpan(queryBlock * 8, 8);
+            position = table.FirstCandidate(query, out int tag, out bool matches);
+            for (int block = 0; block < firstBytes.Length; block++)
+            {
+                Assert.Equal(block * 8, position);
+                Assert.Equal((firstBytes[block] & 0x0f) == (query[0] & 0x0f), matches);
+                position = table.NextCandidate(position, tag, out matches);
+            }
+            Assert.True(position < 0);
+        }
+
+        var stats = table.GetStats();
+        Assert.Equal(1, stats.SlotsFilled);
+        Assert.Equal(3, stats.Collisions);
+    }
+
+    internal static byte[] SeedInBucket(byte firstByte, ulong bucket, ulong mask)
+    {
+        var seed = new byte[8];
+        seed[0] = firstByte;
+        for (int salt = 0; salt < 1_000_000; salt++)
+        {
+            BitConverter.TryWriteBytes(seed.AsSpan(1), salt);
+            if ((Hash.Hash64(BitConverter.ToUInt64(seed)) & mask) == bucket)
+                return seed;
+        }
+        throw new InvalidOperationException("Could not generate a seed for the requested test bucket.");
+    }
+
 #if DELTASHARP_HASHTABLE24
     [Fact]
     public void Hashtable24Match()

@@ -129,6 +129,21 @@ internal unsafe readonly ref struct Hashtable64_24
         return (int)((*v32p) & 0x00_ff_ff_ff);
     }
 
+#if NET9_0_OR_GREATER
+    public int FirstCandidate(ReadOnlySpan<byte> data, out int tag, out bool mayMatch)
+    {
+        tag = 0;
+        mayMatch = true;
+        return Match(data);
+    }
+
+    public int NextCandidate(int pos, int tag, out bool mayMatch)
+    {
+        mayMatch = true;
+        return More(pos);
+    }
+#endif
+
     public HashtableStats GetStats()
     {
         var length = _landmark.Length / 3;

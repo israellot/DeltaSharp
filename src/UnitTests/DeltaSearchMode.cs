@@ -1,11 +1,37 @@
 using DeltaSharp;
 using DeltaSharp.Format;
+using DeltaSharp.Util.Hashtable;
+using System.Text;
 using Delta = DeltaSharp.DeltaSharp;
 
 namespace UnitTests;
 
 public class DeltaSearchModeTests
 {
+    [Theory]
+    [InlineData(255)]
+    [InlineData(256)]
+    public void BoundedSearchCountsCandidatesWithDifferentFirstByteTags(int decoys)
+    {
+        var source = new byte[512 * 1024];
+        var target = Encoding.ASCII.GetBytes(new string('O', 17));
+        var mask = (ulong)(Hash.TableSize(source.Length / 8) - 1);
+        var bucket = Hash.Hash64(BitConverter.ToUInt64(target)) & mask;
+        var decoy = HashtableTests.SeedInBucket(0, bucket, mask);
+        for (int block = 0; block < decoys; block++)
+            decoy.CopyTo(source, block * 8);
+        target.CopyTo(source, decoys * 8);
+
+        // Every target window is identical, so a later lookup cannot recover
+        // a match beyond the bounded search's 256th candidate.
+        var copy = $"l 17\nc {decoys * 8} 17\nv ";
+        var insert = $"l 17\ni 17 {Encoding.ASCII.GetString(target)}\nv ";
+        var exhaustive = Delta.CreateASCII(source, target, DeltaSearchMode.Exhaustive);
+        var bounded = Delta.CreateASCII(source, target, DeltaSearchMode.Bounded);
+        Assert.StartsWith(copy, Encoding.ASCII.GetString(exhaustive.Data.Span));
+        Assert.StartsWith(decoys == 255 ? copy : insert, Encoding.ASCII.GetString(bounded.Data.Span));
+    }
+
     [Theory]
     [InlineData("Binary", 255)]
     [InlineData("Binary", 256)]

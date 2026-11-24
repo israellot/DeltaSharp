@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace DeltaSharp.Util.Hashtable;
@@ -80,7 +81,32 @@ internal readonly ref struct Hashtable64
         }
     }
 
-    
+#if !NET9_0_OR_GREATER
+    public bool UsesFirstByteTag => _hashtable == 32;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int FirstCandidate<TMode>(ReadOnlySpan<byte> data, out int tag, out bool mayMatch)
+        where TMode : struct, ICandidateMode
+    {
+        if (default(TMode).UsesFirstByteTag)
+            return _hashtable32.FirstCandidate(data, out tag, out mayMatch);
+
+        tag = 0;
+        mayMatch = true;
+        return Match(data);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int NextCandidate<TMode>(int pos, int tag, out bool mayMatch)
+        where TMode : struct, ICandidateMode
+    {
+        if (default(TMode).UsesFirstByteTag)
+            return _hashtable32.NextCandidate(pos, tag, out mayMatch);
+
+        mayMatch = true;
+        return More(pos);
+    }
+#endif
 
     public void Dispose()
     {
@@ -95,3 +121,22 @@ internal readonly ref struct Hashtable64
         }
     }
 }
+
+#if !NET9_0_OR_GREATER
+// Make the portable encoder's tag decision once per Create. The JIT specializes
+// its candidate loop for each of these value types.
+internal interface ICandidateMode
+{
+    bool UsesFirstByteTag { get; }
+}
+
+internal readonly struct TaggedCandidates : ICandidateMode
+{
+    public bool UsesFirstByteTag => true;
+}
+
+internal readonly struct UntaggedCandidates : ICandidateMode
+{
+    public bool UsesFirstByteTag => false;
+}
+#endif

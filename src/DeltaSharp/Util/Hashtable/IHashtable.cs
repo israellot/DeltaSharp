@@ -2,6 +2,7 @@
 
 internal interface IHashtable
 {
-    int Match(ReadOnlySpan<byte> data);
-    int More(int pos);
+    // Every candidate consumes one search slot, including candidates whose tag rejects them.
+    int FirstCandidate(ReadOnlySpan<byte> data, out int tag, out bool mayMatch);
+    int NextCandidate(int pos, int tag, out bool mayMatch);
 }
