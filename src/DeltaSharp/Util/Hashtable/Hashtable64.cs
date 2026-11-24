@@ -54,8 +54,14 @@ internal readonly ref struct Hashtable64
         }
     }
 
-    public int Match(ReadOnlySpan<byte> data)
+    public int Match(ReadOnlySpan<byte> data) => FirstCandidate(data, out _, out _);
+
+    public int More(int pos) => NextCandidate(pos, 0, out _);
+
+    public int FirstCandidate(ReadOnlySpan<byte> data, out int tag, out bool mayMatch)
     {
+        tag = 0;
+        mayMatch = true;
         switch (_hashtable)
         {
             case 8: return _hashtable8.Match(data);
@@ -63,12 +69,13 @@ internal readonly ref struct Hashtable64
 #if DELTASHARP_HASHTABLE24
             case 24: return _hashtable24.Match(data);
 #endif
-            default: return _hashtable32.Match(data);
+            default: return _hashtable32.FirstCandidate(data, out tag, out mayMatch);
         }
     }
 
-    public int More(int pos)
+    public int NextCandidate(int pos, int tag, out bool mayMatch)
     {
+        mayMatch = true;
         switch (_hashtable)
         {
             case 8: return _hashtable8.More(pos);
@@ -76,11 +83,9 @@ internal readonly ref struct Hashtable64
 #if DELTASHARP_HASHTABLE24
             case 24: return _hashtable24.More(pos);
 #endif
-            default: return _hashtable32.More(pos);
+            default: return _hashtable32.NextCandidate(pos, tag, out mayMatch);
         }
     }
-
-    
 
     public void Dispose()
     {

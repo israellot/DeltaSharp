@@ -164,14 +164,11 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
             var bestMatchLength = 0;
             var bestMatchedBackwards = 0;
 
-            var p = hashtable.Match(next);
+            var p = hashtable.FirstCandidate(next, out int tag, out bool mayMatch);
             var candidatesRemaining = maxCandidatesPerPosition;
             while (p >= 0 && candidatesRemaining-- > 0)
             {
-                //target matched at landmark on origin
-
-                //actually match forward as long as possible
-                var matchedForward = SpanHelper.MatchForward(next, origin.Slice(p));
+                var matchedForward = mayMatch ? SpanHelper.MatchForward(next, origin.Slice(p)) : 0;
                 if (matchedForward > 0)
                 {
                     //check if we can match backwards too
@@ -190,7 +187,7 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
                 }
                 
 
-                p = hashtable.More(p);
+                p = hashtable.NextCandidate(p, tag, out mayMatch);
             }
 
             if (bestMatchLength > 8)

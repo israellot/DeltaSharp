@@ -12,16 +12,19 @@ using System.Threading.Tasks;
 namespace DeltaSharp.Util.Hashtable;
 
 /// <summary>
-/// Stores source landmarks and collision chains using 32-bit, zero-based block indices
-/// in a pooled integer array, with -1 marking empty slots. The indices address all complete
-/// 8-byte blocks in an int-sized source span; allocation remains subject to available memory
-/// and runtime array-size limits.
+/// Stores source landmarks and collision chains using 32-bit entries in a pooled array.
+/// The low 28 bits hold a one-based source block index and the high four bits hold
+/// the low nibble of its first byte. Zero marks an empty entry.
 /// </summary>
 internal unsafe readonly ref struct Hashtable64_32
 #if NET9_0_OR_GREATER
     : IHashtable
 #endif
 {
+
+    // An int-sized source contains at most (1 << 28) - 1 complete eight-byte blocks.
+    private const int TagShift = 28;
+    private const int BlockIndexMask = (1 << TagShift) - 1;
 
     private readonly ReadOnlySpan<int> _collide;
 
@@ -33,10 +36,6 @@ internal unsafe readonly ref struct Hashtable64_32
 
     public Hashtable64_32(ReadOnlySpan<byte> data)
     {
-        //In C# arrays are limited to Int32.MaxValue elements
-        //So we can safely assume here that the data length will not exceed 2,147,483,640 bytes
-        //We can use the sign bit to indicate empty slots and avoid the extra checks and shifts needed in the other versions
-
         var nLong = (int)data.Length / 8;
                 
         // Compute the hash table used to locate matching sections in the source.
@@ -45,7 +44,7 @@ internal unsafe readonly ref struct Hashtable64_32
         _nHashBitMask = (ulong)(nHash - 1);
 
         _buffer = ArrayPool<int>.Shared.Rent(nHash * 2);        
-        _buffer.AsSpan().Slice(0, nHash * 2).Fill(-1); //use sign bit to indicate empty
+        _buffer.AsSpan(0, nHash * 2).Clear();
 
         Span<int> landmark = _buffer.AsSpan().Slice(nHash, nHash);
         Span<int> collide = _buffer.AsSpan().Slice(0, nHash);
@@ -65,7 +64,7 @@ internal unsafe readonly ref struct Hashtable64_32
                     var hv = Bucket(d);
 
                     *(collideP + i) = landmarkP[hv];
-                    *(landmarkP + hv) = i;
+                    *(landmarkP + hv) = FirstByteTag(d) | (i + 1);
                 }
             }
         }
@@ -78,25 +77,38 @@ internal unsafe readonly ref struct Hashtable64_32
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int Match(ReadOnlySpan<byte> data)
+    public int Match(ReadOnlySpan<byte> data) => FirstCandidate(data, out _, out _);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int More(int pos) => Position(NextEntry(pos));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private int NextEntry(int pos) => _collide[(int)((uint)pos / 8)];
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int Position(int entry) => ((entry & BlockIndexMask) - 1) * 8;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int FirstCandidate(ReadOnlySpan<byte> data, out int tag, out bool mayMatch)
     {
-        //assume data is at least 8 bytes long to do a branchless read
-        var ulongData = Unsafe.ReadUnaligned<ulong>(ref MemoryMarshal.GetReference(data));
-
-        var bucket = Bucket(ulongData);
-
-        //branchless read since bucket will always be within range
-        int pos = _landmark[bucket];
-
-        return pos * 8;
+        var key = Unsafe.ReadUnaligned<ulong>(ref MemoryMarshal.GetReference(data));
+        tag = FirstByteTag(key);
+        return DecodeCandidate(_landmark[Bucket(key)], tag, out mayMatch);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int More(int pos)
+    public int NextCandidate(int pos, int tag, out bool mayMatch)
+        => DecodeCandidate(NextEntry(pos), tag, out mayMatch);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int FirstByteTag(ulong key)
+        => (int)((BitConverter.IsLittleEndian ? key : key >> 56) & 0xf) << TagShift;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int DecodeCandidate(int entry, int tag, out bool mayMatch)
     {
-        //branchless read
-        //index is always within range
-        return _collide[(int)((uint)pos / 8)] * 8;
+        mayMatch = (entry & ~BlockIndexMask) == tag;
+        return Position(entry);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -109,9 +121,9 @@ internal unsafe readonly ref struct Hashtable64_32
     {
         return new HashtableStats
         {
-            Collisions = _collide.Length - _collide.Count(-1),
+            Collisions = _collide.Length - _collide.Count(0),
             Slots = _landmark.Length,
-            SlotsFilled = _landmark.Length - _landmark.Count(-1)
+            SlotsFilled = _landmark.Length - _landmark.Count(0)
         };
     }
 

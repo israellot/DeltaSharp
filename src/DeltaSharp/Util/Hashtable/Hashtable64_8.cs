@@ -92,6 +92,21 @@ internal readonly ref struct Hashtable64_8
         return (int)(Hash.Hash64(x) & _nHashBitMask);
     }
 
+#if NET9_0_OR_GREATER
+    public int FirstCandidate(ReadOnlySpan<byte> data, out int tag, out bool mayMatch)
+    {
+        tag = 0;
+        mayMatch = true;
+        return Match(data);
+    }
+
+    public int NextCandidate(int pos, int tag, out bool mayMatch)
+    {
+        mayMatch = true;
+        return More(pos);
+    }
+#endif
+
     public HashtableStats GetStats()
     {
         var collisions = 256;
