@@ -138,7 +138,10 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
         }
 #else
         using var table = new Hashtable64(origin);
-        EncodeMatches(table, origin, target, maxCandidatesPerPosition, ref writer);
+        if (table.UsesFirstByteTag)
+            EncodeMatches<TaggedCandidates>(table, origin, target, maxCandidatesPerPosition, ref writer);
+        else
+            EncodeMatches<UntaggedCandidates>(table, origin, target, maxCandidatesPerPosition, ref writer);
 #endif
     }
 
@@ -147,8 +150,9 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
         ReadOnlySpan<byte> target, int maxCandidatesPerPosition, ref TWriter writer)
         where TTable : IHashtable, allows ref struct
 #else
-    private static void EncodeMatches(Hashtable64 hashtable, ReadOnlySpan<byte> origin,
+    private static void EncodeMatches<TMode>(Hashtable64 hashtable, ReadOnlySpan<byte> origin,
         ReadOnlySpan<byte> target, int maxCandidatesPerPosition, ref TWriter writer)
+        where TMode : struct, ICandidateMode
 #endif
     {
         var unmatched = ReadOnlySpan<byte>.Empty;
@@ -164,7 +168,11 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
             var bestMatchLength = 0;
             var bestMatchedBackwards = 0;
 
+#if NET9_0_OR_GREATER
             var p = hashtable.FirstCandidate(next, out int tag, out bool mayMatch);
+#else
+            var p = hashtable.FirstCandidate<TMode>(next, out int tag, out bool mayMatch);
+#endif
             var candidatesRemaining = maxCandidatesPerPosition;
             while (p >= 0 && candidatesRemaining-- > 0)
             {
@@ -187,7 +195,11 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
                 }
                 
 
+#if NET9_0_OR_GREATER
                 p = hashtable.NextCandidate(p, tag, out mayMatch);
+#else
+                p = hashtable.NextCandidate<TMode>(p, tag, out mayMatch);
+#endif
             }
 
             if (bestMatchLength > 8)
