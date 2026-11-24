@@ -45,6 +45,18 @@ public class DeltaCreateTests
         Assert.Equal(deltaString, shouldEqual);
     }
 
+    [Theory]
+    [InlineData(DeltaSearchMode.Exhaustive)]
+    [InlineData(DeltaSearchMode.Bounded)]
+    public void ShortForwardMatchCanExtendBackwardIntoACopy(DeltaSearchMode mode)
+    {
+        // "hi131857" and "hijklmno" share a bucket. The two matching bytes
+        // at source offset 8 extend seven bytes backwards to form a COPY.
+        var patch = global::DeltaSharp.DeltaSharp.CreateASCII("Xabcdefghijklmno"u8, "abcdefghi131857ZZ"u8, mode);
+
+        Assert.StartsWith("l 17\nc 1 9\ni 8 131857ZZ\n", Encoding.ASCII.GetString(patch.Data.Span));
+    }
+
     [Fact]
     public void PermutateASCII()
     {

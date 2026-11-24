@@ -164,18 +164,18 @@ public class DeltaCreate<TWriter,TChecksum>: IDeltaCreate
             var bestMatchLength = 0;
             var bestMatchedBackwards = 0;
 
+            var firstByte = next[0];
             var p = hashtable.Match(next);
             var candidatesRemaining = maxCandidatesPerPosition;
             while (p >= 0 && candidatesRemaining-- > 0)
             {
-                //target matched at landmark on origin
-
-                //actually match forward as long as possible
-                var matchedForward = SpanHelper.MatchForward(next, origin.Slice(p));
-                if (matchedForward > 0)
+                // A hash collision can still extend backwards if even one byte matches forwards.
+                if (origin[p] == firstByte)
                 {
-                    //check if we can match backwards too
-                    var matchedBackwards = unmatched.Length > 0 ? SpanHelper.MatchBackward(unmatched, origin.Slice(0, p)) : 0;
+                    var matchedForward = SpanHelper.MatchForward(next, origin.Slice(p));
+                    var matchedBackwards = !unmatched.IsEmpty && p > 0 && unmatched[unmatched.Length - 1] == origin[p - 1]
+                        ? SpanHelper.MatchBackward(unmatched, origin.Slice(0, p))
+                        : 0;
                     var matchedTotal = matchedForward + matchedBackwards;
                     if (matchedTotal > bestMatchLength)
                     {

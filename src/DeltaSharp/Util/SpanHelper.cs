@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 #if !NETSTANDARD2_0
 using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.Arm;
 #endif
 using System.Text;
 using System.Threading.Tasks;
@@ -32,86 +33,57 @@ internal class SpanHelper
         return matched;
     }
 #else
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int MatchForward(ReadOnlySpan<byte> x, ReadOnlySpan<byte> y)
     {
-        var length = Math.Min(x.Length, y.Length);
+        int length = Math.Min(x.Length, y.Length);
+        ref byte first = ref MemoryMarshal.GetReference(x);
+        ref byte second = ref MemoryMarshal.GetReference(y);
+        if (!Vector128.IsHardwareAccelerated || length < Vector128<byte>.Count)
+            return MatchForwardScalar(ref first, ref second, length);
 
-        if (!Vector128.IsHardwareAccelerated || length < 16)
+        // Most candidates differ in the first vector. Keep that comparison in the caller.
+        ulong mask = EqualByteMask(ref first, ref second, 0);
+        if (mask != AllEqualMask)
+            return MatchingPrefixBytes(mask);
+
+        return length == Vector128<byte>.Count ? length : MatchForwardTail(ref first, ref second, length);
+    }
+
+    private static int MatchForwardTail(ref byte first, ref byte second, int length)
+    {
+        nuint last = (nuint)length - (nuint)Vector128<byte>.Count;
+        for (nuint offset = (nuint)Vector128<byte>.Count; offset < last; offset += (nuint)Vector128<byte>.Count)
         {
-            ref byte xPtr = ref MemoryMarshal.GetReference(x);
-            ref byte yPtr = ref MemoryMarshal.GetReference(y);
-
-            int i = 0;
-            ulong mask = 0;
-
-            for (; i < length - 8; i = i + 8)
-            {
-                var xlong = Unsafe.ReadUnaligned<ulong>(ref Unsafe.Add(ref xPtr, i));
-                var ylong = Unsafe.ReadUnaligned<ulong>(ref Unsafe.Add(ref yPtr, i));
-                mask = (xlong ^ ylong);
-
-                if (mask != 0)
-                {
-                    return (int)(i + (int)ulong.TrailingZeroCount(mask) / 8);
-                }
-            }
-
-            for (; i < length; i++)
-            {
-                if (Unsafe.Add(ref xPtr, i) != Unsafe.Add(ref yPtr, i))
-                    break;
-            }
-
-            return i;
-        }
-        else
-        {
-            uint mask;
-            nuint lengthToExamine = (nuint)length - 16;
-
-            Vector128<byte> maskVec;
-            nuint i = 0;
-
-            while (i < lengthToExamine)
-            {
-                maskVec = Vector128.Equals(
-                    Vector128.LoadUnsafe(ref MemoryMarshal.GetReference(x), i),
-                    Vector128.LoadUnsafe(ref MemoryMarshal.GetReference(y), i));
-
-                mask = maskVec.ExtractMostSignificantBits();
-                if (mask != 0xFFFF)
-                    goto Found;
-
-                i += 16;
-            }
-
-            {
-                // Do final compare from end rather than start
-                // This can overlap with already analyzed bytes on the previous iteration, but not an issue
-                i = lengthToExamine;
-                maskVec = Vector128.Equals(
-                    Vector128.LoadUnsafe(ref MemoryMarshal.GetReference(x), i),
-                    Vector128.LoadUnsafe(ref MemoryMarshal.GetReference(y), i));
-
-                mask = maskVec.ExtractMostSignificantBits();
-                if (mask != 0xFFFF)
-                    goto Found;
-            }
-
-            return length;
-
-        Found:
-            mask = ~mask;
-            return (int)(i + uint.TrailingZeroCount(mask));
+            ulong mask = EqualByteMask(ref first, ref second, offset);
+            if (mask != AllEqualMask)
+                return (int)offset + MatchingPrefixBytes(mask);
         }
 
+        // The final vector ends at the shorter span's boundary and can overlap the previous one.
+        ulong finalMask = EqualByteMask(ref first, ref second, last);
+        return finalMask == AllEqualMask ? length : (int)last + MatchingPrefixBytes(finalMask);
+    }
+
+    private static int MatchForwardScalar(ref byte first, ref byte second, int length)
+    {
+        int i = 0;
+        for (; i < length - 8; i += 8)
+        {
+            ulong difference = Unsafe.ReadUnaligned<ulong>(ref Unsafe.Add(ref first, i))
+                             ^ Unsafe.ReadUnaligned<ulong>(ref Unsafe.Add(ref second, i));
+            if (difference != 0)
+                return i + BitOperations.TrailingZeroCount(difference) / 8;
+        }
+
+        while (i < length && Unsafe.Add(ref first, i) == Unsafe.Add(ref second, i))
+            i++;
+        return i;
     }
 
     public static int MatchBackward(ReadOnlySpan<byte> x, ReadOnlySpan<byte> y)
     {
         var length = Math.Min(x.Length, y.Length);
-
-        
 
         if (!Vector128.IsHardwareAccelerated || length < 16)
         {
@@ -119,17 +91,17 @@ internal class SpanHelper
             ref byte yPtr = ref Unsafe.Add(ref MemoryMarshal.GetReference(y), y.Length - 1);
 
             int i = 0;
-            ulong mask = 0;
+            ulong difference = 0;
 
             for (; i < length - 8; i = i + 8)
             {
                 var xlong = Unsafe.ReadUnaligned<ulong>(ref Unsafe.Subtract(ref xPtr, (i + 7)));
                 var ylong = Unsafe.ReadUnaligned<ulong>(ref Unsafe.Subtract(ref yPtr, (i + 7)));
-                mask = (xlong ^ ylong);
+                difference = (xlong ^ ylong);
 
-                if (mask != 0)
+                if (difference != 0)
                 {
-                    return (int)(i + (int)ulong.LeadingZeroCount(mask) / 8);
+                    return (int)(i + (int)ulong.LeadingZeroCount(difference) / 8);
                 }
             }
 
@@ -141,56 +113,52 @@ internal class SpanHelper
 
             return i;
         }
-        else// Vector128.IsHardwareAccelerated
+
+        int offset = length - Vector128<byte>.Count;
+        ref byte first = ref Unsafe.Add(ref MemoryMarshal.GetReference(x), x.Length - length);
+        ref byte second = ref Unsafe.Add(ref MemoryMarshal.GetReference(y), y.Length - length);
+
+        ulong mask;
+        for (; offset > 0; offset -= Vector128<byte>.Count)
         {
-            uint mask;
-
-            Vector128<byte> maskVec;
-            int i = length - 16;
-
-            ref byte xPtr = ref Unsafe.Add(ref MemoryMarshal.GetReference(x), x.Length - length);
-            ref byte yPtr = ref Unsafe.Add(ref MemoryMarshal.GetReference(y), y.Length - length);
-
-            while (i > 0)
-            {
-                var vx = Vector128.LoadUnsafe(ref xPtr, (nuint)i);
-                var vy = Vector128.LoadUnsafe(ref yPtr, (nuint)i);
-
-                maskVec = Vector128.Equals(vx, vy);
-
-                mask = maskVec.ExtractMostSignificantBits();
-                if (mask != 0xFFFF)
-                    goto Found;
-
-                i -= 16;
-            }
-
-            {
-                i = 0;
-
-                // Do final compare from start rather than end
-                // This can overlap with already analyzed bytes on the previous iteration, but not an issue
-                var vx = Vector128.LoadUnsafe(ref xPtr,0);
-                var vy = Vector128.LoadUnsafe(ref yPtr,0);
-
-                maskVec = Vector128.Equals(vx, vy);
-
-                mask = maskVec.ExtractMostSignificantBits();
-                if (mask != 0xFFFF)
-                    goto Found;
-            }
-
-
-            return length;
-
-        Found:
-            mask = ~mask;
-            var result= (int)(length - i - 16 + ushort.LeadingZeroCount((ushort)mask));
-
-            return result;
+            mask = EqualByteMask(ref first, ref second, (nuint)offset);
+            if (mask != AllEqualMask)
+                goto Found;
         }
 
+        offset = 0;
+        mask = EqualByteMask(ref first, ref second, 0);
+        if (mask == AllEqualMask)
+            return length;
 
+    Found:
+        int matchingSuffix = AdvSimd.Arm64.IsSupported
+            ? BitOperations.LeadingZeroCount(~mask) / 4
+            : ushort.LeadingZeroCount((ushort)~mask);
+        return length - offset - Vector128<byte>.Count + matchingSuffix;
     }
+
+    private static ulong AllEqualMask
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => AdvSimd.Arm64.IsSupported ? ulong.MaxValue : ushort.MaxValue;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static ulong EqualByteMask(ref byte first, ref byte second, nuint offset)
+    {
+        var equal = Vector128.Equals(Vector128.LoadUnsafe(ref first, offset), Vector128.LoadUnsafe(ref second, offset));
+        if (AdvSimd.Arm64.IsSupported)
+        {
+            // Each equality byte is 00 or FF. Narrow each pair to two four-bit results.
+            return AdvSimd.ShiftRightLogicalNarrowingLower(equal.AsUInt16(), 4).AsUInt64().ToScalar();
+        }
+        return equal.ExtractMostSignificantBits();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int MatchingPrefixBytes(ulong mask) => AdvSimd.Arm64.IsSupported
+        ? BitOperations.TrailingZeroCount(~mask) / 4
+        : BitOperations.TrailingZeroCount((uint)~mask);
 #endif
 }
